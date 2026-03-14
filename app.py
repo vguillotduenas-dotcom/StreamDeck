@@ -57,16 +57,15 @@ def login():
             return "Initialisation en cours... rafraîchissez la page."
     return render_template('login.html')
 
-@app.route('/admin', methods=['GET', 'POST'])
+@app.route('/supprimer/<int:id>')
 @login_required
-def admin():
+def supprimer(id):
     if current_user.role != 'admin': return redirect(url_for('index'))
-    if request.method == 'POST':
-        v = Video(nom=request.form['nom'], img=request.form['img'], lien=request.form['lien'])
-        db.session.add(v)
+    film = Video.query.get(id)
+    if film:
+        db.session.delete(film)
         db.session.commit()
-        return redirect(url_for('admin'))
-    return render_template('admin.html')
+    return redirect(url_for('admin'))
 
 if __name__ == '__main__':
     port = int(os.environ.get("PORT", 10000))
