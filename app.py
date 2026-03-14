@@ -4,7 +4,7 @@ from flask_sqlalchemy import SQLAlchemy
 from flask_login import LoginManager, UserMixin, login_user, login_required, current_user
 
 app = Flask(__name__)
-app.config['SECRET_KEY'] = 'cle-de-securite-123'
+app.config['SECRET_KEY'] = 'streamdeck-ultra-secure-key'
 app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///data.db'
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 
@@ -12,6 +12,7 @@ db = SQLAlchemy(app)
 login_manager = LoginManager(app)
 login_manager.login_view = 'login'
 
+# --- MODÈLES DE DONNÉES ---
 class User(UserMixin, db.Model):
     id = db.Column(db.Integer, primary_key=True)
     nom = db.Column(db.String(100))
@@ -39,11 +40,14 @@ class Episode(db.Model):
 def load_user(uid):
     return User.query.get(int(uid))
 
+# Initialisation de la base de données
 with app.app_context():
     db.create_all()
     if not User.query.filter_by(role='admin').first():
         db.session.add(User(nom="Admin", prenom="Boss", code='ADMIN123', role='admin'))
         db.session.commit()
+
+# --- ROUTES ---
 
 @app.route('/')
 @login_required
@@ -72,8 +76,11 @@ def login():
 @app.route('/admin', methods=['GET', 'POST'])
 @login_required
 def admin():
-    if current_user.role != 'admin': return redirect(url_for('index'))
+    if current_user.role != 'admin': 
+        return redirect(url_for('index'))
+    
     if request.method == 'POST':
+        # Action : Ajouter un film ou une série
         if 'add_content' in request.form:
             v_type = request.form.get('type')
             v = Video(
@@ -94,22 +101,45 @@ def admin():
                     lien_ep=request.form.get('lien_ep')
                 )
                 db.session.add(ep)
-            db.session.commit()
+        
+        # Action : Générer un code unique
+        elif 'gen_code' in request.form:
+            nouveau_code = str(uuid.uuid4())[:8].upper()
+            db.session.add(User(code=nouveau_code, role='user'))
+            
+        db.session.commit()
         return redirect(url_for('admin'))
-    return render_template('admin.html', films=Video.query.all())
+
+    # Récupération des données pour l'affichage
+    tous_les_films = Video.query.all()
+    tous_les_utilisateurs = User.query.filter_by(role='user').all()
+    return render_template('admin.html', films=tous_les_films, users=tous_les_utilisateurs)
 
 @app.route('/del_v/<int:id>')
 @login_required
 def del_v(id):
     if current_user.role == 'admin':
-        db.session.delete(Video.query.get(id))
-        db.session.commit()
+        video = Video.query.get(id)
+        if video:
+            db.session.delete(video)
+            db.session.commit()
+    return redirect(url_for('admin'))
+
+@app.route('/del_u/<int:id>')
+@login_required
+def del_u(id):
+    if current_user.role == 'admin':
+        user = User.query.get(id)
+        if user:
+            db.session.delete(user)
+            db.session.commit()
     return redirect(url_for('admin'))
 
 @app.route('/serie/<int:id>')
 @login_required
 def serie_details(id):
-    return render_template('serie.html', serie=Video.query.get_or_404(id))
+    serie = Video.query.get_or_404(id)
+    return render_template('serie.html', serie=serie)
 
 if __name__ == '__main__':
     app.run(host='0.0.0.0', port=10000)
