@@ -52,3 +52,20 @@
     <br><a href="/" style="color:white;">Retour</a>
 </body>
 </html>
+<h2>Générer un accès invité</h2>
+<form method="POST">
+    <button type="submit" name="gen_code">Créer un nouveau code unique</button>
+</form>
+
+<h2>Liste des utilisateurs</h2>
+<table>
+    <tr><th>Nom</th><th>Prénom</th><th>Code</th><th>Action</th></tr>
+    {% for u in users %}
+    <tr>
+        <td>{{ u.nom or 'Pas encore inscrit' }}</td>
+        <td>{{ u.prenom or '-' }}</td>
+        <td><strong>{{ u.code }}</strong></td>
+        <td><a href="{{ url_for('supprimer_user', id=u.id) }}">Bannir/Déconnecter</a></td>
+    </tr>
+    {% endfor %}
+</table>
