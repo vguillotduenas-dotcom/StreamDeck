@@ -56,11 +56,10 @@ def admin():
 
 if __name__ == '__main__':
     with app.app_context():
+        db.drop_all() # ATTENTION : Ceci va nettoyer les vieilles erreurs
         db.create_all()
-        if not User.query.filter_by(role='admin').first():
-            db.session.add(User(code='ADMIN123', role='admin'))
-            db.session.commit()
+        db.session.add(User(code='ADMIN123', role='admin'))
+        db.session.commit()
     
-    # CETTE PARTIE EST CRUCIALE POUR RENDER :
-    port = int(os.environ.get("PORT", 10000)) # On force le port 10000 si PORT n'est pas défini
+    port = int(os.environ.get("PORT", 10000))
     app.run(host='0.0.0.0', port=port)
