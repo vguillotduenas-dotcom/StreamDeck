@@ -1,30 +1,23 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <title>{{ serie.nom }} - Épisodes</title>
+    <title>Episodes</title>
     <style>
-        body { background: #0b0b0b; color: white; font-family: Arial; padding: 50px; }
-        .ep-container { max-width: 900px; margin: auto; }
-        .ep-row { background: #181818; padding: 20px; margin-bottom: 10px; border-radius: 5px; display: flex; justify-content: space-between; align-items: center; border-left: 5px solid #e50914; }
-        .ep-row:hover { background: #222; }
-        a.play-ep { background: #e50914; color: white; padding: 10px 20px; text-decoration: none; border-radius: 4px; font-weight: bold; }
+        body { background: #0b0b0b; color: white; font-family: sans-serif; padding: 40px; }
+        .ep-list { max-width: 800px; margin: auto; }
+        .ep-card { background: #181818; padding: 20px; margin-bottom: 10px; border-radius: 5px; display: flex; justify-content: space-between; align-items: center; border-left: 4px solid #e50914; }
+        .play-btn { background: #e50914; color: white; text-decoration: none; padding: 8px 15px; border-radius: 4px; font-weight: bold; }
         .back { color: #555; text-decoration: none; display: block; margin-bottom: 20px; }
     </style>
 </head>
 <body>
-    <div class="ep-container">
-        <a href="/" class="back">← Retour au catalogue</a>
+    <div class="ep-list">
+        <a href="/" class="back">← Retour</a>
         <h1>{{ serie.nom }}</h1>
-        <p style="color: #777;">Séries / {{ serie.nom }}</p>
-        <hr style="border: 0; border-top: 1px solid #333; margin: 30px 0;">
-
         {% for ep in serie.episodes %}
-        <div class="ep-row">
-            <div>
-                <span style="color: #e50914; font-weight: bold;">{{ ep.saison }}</span>
-                <span style="margin-left: 20px; font-size: 1.2em;">{{ ep.titre_ep }}</span>
-            </div>
-            <a href="{{ ep.lien_ep }}" target="_blank" class="play-ep">LECTURE</a>
+        <div class="ep-card">
+            <div><strong>{{ ep.saison }}</strong> - {{ ep.titre_ep }}</div>
+            <a href="{{ ep.lien_ep }}" target="_blank" class="play-btn">LIRE</a>
         </div>
         {% endfor %}
     </div>
