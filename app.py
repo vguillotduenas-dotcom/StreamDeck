@@ -4,7 +4,7 @@ from flask_sqlalchemy import SQLAlchemy
 from flask_login import LoginManager, UserMixin, login_user, login_required, current_user
 
 app = Flask(__name__)
-app.config['SECRET_KEY'] = 'dev-key-789'
+app.config['SECRET_KEY'] = 'cle-secrete-123'
 app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///data.db'
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 
@@ -12,6 +12,7 @@ db = SQLAlchemy(app)
 login_manager = LoginManager(app)
 login_manager.login_view = 'login'
 
+# Modèles de données
 class User(UserMixin, db.Model):
     id = db.Column(db.Integer, primary_key=True)
     code = db.Column(db.String(100), unique=True)
@@ -26,6 +27,8 @@ class Video(db.Model):
 @login_manager.user_loader
 def load_user(uid):
     return User.query.get(int(uid))
+
+# --- ROUTES ---
 
 @app.route('/')
 @login_required
@@ -54,12 +57,19 @@ def admin():
         return redirect(url_for('admin'))
     return render_template('admin.html')
 
+# --- LANCEMENT ---
+
 if __name__ == '__main__':
     with app.app_context():
-        db.drop_all() # ATTENTION : Ceci va nettoyer les vieilles erreurs
+        # LE TRUC DU "JSP QUOI" (LE RESET) :
+        db.drop_all() 
         db.create_all()
-        db.session.add(User(code='ADMIN123', role='admin'))
+        
+        # On recrée l'admin proprement
+        admin_user = User(code='ADMIN123', role='admin')
+        db.session.add(admin_user)
         db.session.commit()
     
+    # Détection du port pour Render
     port = int(os.environ.get("PORT", 10000))
     app.run(host='0.0.0.0', port=port)
