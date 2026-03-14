@@ -102,4 +102,13 @@ def del_v(id):
         db.session.delete(Video.query.get(id)); db.session.commit()
     return redirect(url_for('admin'))
 
-@app.route('/
+@app.route('/del_u/<int:id>')
+@login_required
+def del_u(id):
+    if current_user.role == 'admin':
+        db.session.delete(User.query.get(id)); db.session.commit()
+    return redirect(url_for('admin'))
+
+if __name__ == '__main__':
+    port = int(os.environ.get("PORT", 10000))
+    app.run(host='0.0.0.0', port=port)
