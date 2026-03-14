@@ -4,7 +4,7 @@ from flask_sqlalchemy import SQLAlchemy
 from flask_login import LoginManager, UserMixin, login_user, login_required, current_user
 
 app = Flask(__name__)
-app.config['SECRET_KEY'] = 'cle-secrete-streamdeck-2024'
+app.config['SECRET_KEY'] = 'ma_cle_streamdeck_2026'
 app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///data.db'
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 
@@ -12,7 +12,7 @@ db = SQLAlchemy(app)
 login_manager = LoginManager(app)
 login_manager.login_view = 'login'
 
-# --- MODÈLES (Base de données) ---
+# --- MODÈLES ---
 class User(UserMixin, db.Model):
     id = db.Column(db.Integer, primary_key=True)
     nom = db.Column(db.String(100))
@@ -42,7 +42,6 @@ def load_user(uid):
 
 with app.app_context():
     db.create_all()
-    # Création du compte admin par défaut si inexistant
     if not User.query.filter_by(role='admin').first():
         db.session.add(User(nom="Admin", prenom="Boss", code='ADMIN123', role='admin'))
         db.session.commit()
@@ -76,11 +75,58 @@ def login():
 @app.route('/admin', methods=['GET', 'POST'])
 @login_required
 def admin():
-    if current_user.role != 'admin': return redirect(url_for('index'))
+    if current_user.role != 'admin':
+        return redirect(url_for('index'))
+
     if request.method == 'POST':
-        # Action : Créer un nouveau contenu (Film ou Série)
-       if __name__ == '__main__':
-    # Render définit automatiquement un PORT, on doit l'utiliser
+        if 'add_content' in request.form:
+            v_type = request.form.get('type')
+            v = Video(nom=request.form.get('nom'), img=request.form.get('img'), 
+                      lien=request.form.get('lien_film'), type=v_type, genre=request.form.get('genre'))
+            db.session.add(v)
+            db.session.flush() 
+            if v_type == 'serie' and request.form.get('saison'):
+                ep = Episode(video_id=v.id, saison=request.form.get('saison'), 
+                             titre_ep=request.form.get('titre_ep'), lien_ep=request.form.get('lien_ep'))
+                db.session.add(ep)
+        
+        elif 'add_only_ep' in request.form:
+            ep = Episode(video_id=request.form.get('video_id'), saison=request.form.get('saison'), 
+                         titre_ep=request.form.get('titre_ep'), lien_ep=request.form.get('lien_ep'))
+            db.session.add(ep)
+            
+        elif 'gen_code' in request.form:
+            db.session.add(User(code=str(uuid.uuid4())[:8].upper()))
+            
+        db.session.commit()
+        return redirect(url_for('admin'))
+    
+    films_all = Video.query.all()
+    users_all = User.query.filter_by(role='user').all()
+    return render_template('admin.html', films=films_all, users=users_all)
+
+@app.route('/serie/<int:id>')
+@login_required
+def serie_details(id):
+    serie = Video.query.get_or_404(id)
+    return render_template('serie.html', serie=serie)
+
+@app.route('/del_v/<int:id>')
+@login_required
+def del_v(id):
+    if current_user.role == 'admin':
+        v = Video.query.get(id)
+        if v: db.session.delete(v); db.session.commit()
+    return redirect(url_for('admin'))
+
+@app.route('/del_u/<int:id>')
+@login_required
+def del_u(id):
+    if current_user.role == 'admin':
+        u = User.query.get(id)
+        if u: db.session.delete(u); db.session.commit()
+    return redirect(url_for('admin'))
+
+if __name__ == '__main__':
     port = int(os.environ.get("PORT", 5000))
-    # On force l'écoute sur 0.0.0.0 pour que Render puisse voir l'app
     app.run(host='0.0.0.0', port=port)
