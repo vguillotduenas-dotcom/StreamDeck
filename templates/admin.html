@@ -7,90 +7,71 @@
         .card { background: white; padding: 20px; border-radius: 10px; margin-bottom: 20px; box-shadow: 0 2px 5px rgba(0,0,0,0.1); max-width: 600px; margin: auto; }
         input, select { padding: 10px; margin: 10px 0; width: 100%; border: 1px solid #ddd; border-radius: 5px; box-sizing: border-box; }
         .btn { background: #e50914; color: white; border: none; padding: 12px; border-radius: 5px; cursor: pointer; width: 100%; font-weight: bold; }
-        .serie-only { display: none; background: #fff5f5; padding: 15px; border-radius: 5px; border: 1px dashed #e50914; margin: 10px 0; }
+        .serie-box { display: none; background: #fff5f5; padding: 10px; border: 1px dashed #e50914; border-radius: 5px; margin-top: 10px; }
         table { width: 100%; border-collapse: collapse; margin-top: 20px; }
-        th, td { border-bottom: 1px solid #eee; padding: 10px; text-align: left; }
-        .del { color: red; text-decoration: none; font-size: 12px; border: 1px solid red; padding: 2px 5px; border-radius: 3px; }
-        h2 { color: #333; font-size: 18px; border-bottom: 2px solid #e50914; padding-bottom: 5px; }
+        td { padding: 10px; border-bottom: 1px solid #eee; }
+        .del { color: red; text-decoration: none; font-size: 12px; border: 1px solid red; padding: 3px; border-radius: 3px; }
     </style>
 </head>
 <body>
-    <div style="text-align: center; margin-bottom: 20px;">
-        <a href="/" style="text-decoration: none; color: #e50914; font-weight: bold;">⬅ RETOUR AU SITE</a>
-    </div>
-    
+    <div style="text-align:center;"><a href="/">⬅ Retour au site</a></div>
+
     <div class="card">
-        <h2>🎥 Créer un nouveau contenu</h2>
+        <h2>🎥 Nouveau Contenu</h2>
         <form method="POST">
             <input type="hidden" name="add_content">
-            
-            <label>Qu'est-ce que c'est ?</label>
-            <select name="type" id="typeSelect" onchange="toggleFields()">
-                <option value="film">Un Film</option>
-                <option value="serie">Une Nouvelle Série</option>
+            <select name="type" id="typeSelect" onchange="showHide()">
+                <option value="film">Film</option>
+                <option value="serie">Série</option>
             </select>
-
-            <input type="text" name="nom" placeholder="Nom (ex: Les Simpson)" required>
-            <input type="text" name="img" placeholder="Lien de l'image (Affiche)" required>
-            
+            <input type="text" name="nom" placeholder="Nom du contenu" required>
+            <input type="text" name="img" placeholder="Lien Image Affiche" required>
             <select name="genre">
                 <option value="Humour">Humour</option>
                 <option value="Horreur">Horreur</option>
                 <option value="Famille">Famille</option>
             </select>
-
-            <div id="filmField">
-                <input type="text" name="lien_film" placeholder="Lien Google Drive du Film">
-            </div>
-
-            <div id="serieFields" class="serie-only">
-                <p style="margin:0; color: #e50914;"><strong>Détails du 1er épisode :</strong></p>
-                <input type="text" name="saison" placeholder="Saison (ex: Saison 1)">
-                <input type="text" name="titre_ep" placeholder="Nom de l'épisode (ex: Episode 1)">
-                <input type="text" name="lien_ep" placeholder="Lien Google Drive de la vidéo">
-            </div>
-
-            <button type="submit" class="btn">AJOUTER AU CATALOGUE</button>
-        </form>
-    </div>
-
-    <div class="card" style="border-top: 5px solid #333;">
-        <h2>➕ Ajouter des épisodes à une série</h2>
-        <form method="POST">
-            <input type="hidden" name="add_only_ep">
             
-            <label>Choisir la série :</label>
-            <select name="video_id" required>
-                {% for f in films if f.type == 'serie' %}
-                    <option value="{{ f.id }}">{{ f.nom }}</option>
-                {% endfor %}
-            </select>
-
-            <input type="text" name="saison" placeholder="Saison (ex: Saison 1)" required>
-            <input type="text" name="titre_ep" placeholder="Numéro ou nom de l'épisode" required>
-            <input type="text" name="lien_ep" placeholder="Lien Google Drive de la vidéo" required>
+            <div id="filmDiv"><input type="text" name="lien_film" placeholder="Lien Video Drive"></div>
             
-            <button type="submit" class="btn" style="background: #333;">RAJOUTER CET ÉPISODE</button>
+            <div id="serieDiv" class="serie-box">
+                <p><strong>Premier épisode :</strong></p>
+                <input type="text" name="saison" placeholder="Saison 1">
+                <input type="text" name="titre_ep" placeholder="Episode 1">
+                <input type="text" name="lien_ep" placeholder="Lien Video Episode">
+            </div>
+            <button type="submit" class="btn">ENREGISTRER</button>
         </form>
     </div>
 
     <div class="card">
-        <h2>📂 Liste des contenus (Supprimer)</h2>
+        <h2>➕ Ajouter des épisodes</h2>
+        <form method="POST">
+            <input type="hidden" name="add_only_ep">
+            <select name="video_id">
+                {% for f in films if f.type == 'serie' %}<option value="{{ f.id }}">{{ f.nom }}</option>{% endfor %}
+            </select>
+            <input type="text" name="saison" placeholder="Saison (ex: Saison 1)" required>
+            <input type="text" name="titre_ep" placeholder="Episode (ex: Episode 2)" required>
+            <input type="text" name="lien_ep" placeholder="Lien Video Episode" required>
+            <button type="submit" class="btn" style="background:#333">RAJOUTER L'ÉPISODE</button>
+        </form>
+    </div>
+
+    <div class="card">
+        <h2>📂 Catalogue</h2>
         <table>
             {% for f in films %}
-            <tr>
-                <td><strong>{{ f.nom }}</strong> ({{ f.type }})</td>
-                <td style="text-align: right;"><a href="{{ url_for('del_v', id=f.id) }}" class="del" onclick="return confirm('Supprimer ?')">SUPPRIMER</a></td>
-            </tr>
+            <tr><td>{{ f.nom }}</td><td style="text-align:right;"><a href="{{ url_for('del_v', id=f.id) }}" class="del">SUPPRIMER</a></td></tr>
             {% endfor %}
         </table>
     </div>
 
     <script>
-        function toggleFields() {
-            var type = document.getElementById('typeSelect').value;
-            document.getElementById('serieFields').style.display = (type === 'serie') ? 'block' : 'none';
-            document.getElementById('filmField').style.display = (type === 'film') ? 'block' : 'none';
+        function showHide() {
+            var t = document.getElementById('typeSelect').value;
+            document.getElementById('serieDiv').style.display = (t === 'serie') ? 'block' : 'none';
+            document.getElementById('filmDiv').style.display = (t === 'film') ? 'block' : 'none';
         }
     </script>
 </body>
