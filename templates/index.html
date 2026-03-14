@@ -3,62 +3,63 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Streamdeck - Catalogue</title>
+    <title>Streamdeck</title>
     <style>
-        body { background: #0b0b0b; color: white; font-family: sans-serif; margin: 0; padding: 0; }
-        .navbar { display: flex; justify-content: space-between; align-items: center; padding: 15px 30px; background: #000; border-bottom: 1px solid #222; }
-        .logo { color: #e50914; font-size: 26px; font-weight: bold; text-decoration: none; }
-        .discord-btn { background: #7289da; color: white; padding: 8px 15px; border-radius: 5px; text-decoration: none; font-weight: bold; font-size: 13px; }
+        body { background: #141414; color: white; font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif; margin: 0; padding: 0; }
+        .header { display: flex; justify-content: space-between; align-items: center; padding: 20px 4%; background: linear-gradient(to bottom, rgba(0,0,0,0.7) 10%, rgba(0,0,0,0)); position: fixed; width: 92%; z-index: 100; }
+        .logo { color: #e50914; font-size: 25px; font-weight: bold; text-decoration: none; }
+        .discord-link { background: #7289da; color: white; padding: 8px 15px; border-radius: 4px; text-decoration: none; font-weight: bold; font-size: 12px; }
         
-        .filters { display: flex; justify-content: center; gap: 15px; padding: 30px 10px; background: #0b0b0b; }
-        .search { padding: 12px; width: 300px; border-radius: 20px; border: 1px solid #333; background: #181818; color: white; }
-        .genre-select { padding: 10px; border-radius: 5px; background: #333; color: white; border: none; }
+        .main-content { padding-top: 100px; text-align: center; }
+        .search-area { margin-bottom: 30px; }
+        .search-bar { padding: 12px 20px; width: 300px; border-radius: 25px; border: 1px solid #333; background: rgba(0,0,0,0.5); color: white; outline: none; }
+        .genre-box { padding: 10px; border-radius: 5px; background: #333; color: white; border: none; margin-right: 10px; }
 
-        .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(180px, 1fr)); gap: 20px; padding: 20px; }
-        .card { background: #181818; border-radius: 8px; overflow: hidden; border: 1px solid #222; transition: 0.3s; position: relative; }
-        .card:hover { transform: scale(1.03); border-color: #e50914; }
-        .card img { width: 100%; height: 260px; object-fit: cover; }
-        .card-body { padding: 12px; text-align: center; }
-        .badge { position: absolute; top: 8px; right: 8px; background: #e50914; padding: 2px 6px; border-radius: 3px; font-size: 10px; font-weight: bold; }
-        .play-btn { display: block; background: #e50914; color: white; padding: 8px; border-radius: 4px; text-decoration: none; margin-top: 8px; font-size: 13px; font-weight: bold; }
+        .movie-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 30px; padding: 0 4%; }
+        .movie-card { background: #181818; border-radius: 4px; overflow: hidden; transition: transform 0.3s; position: relative; text-decoration: none; color: white; }
+        .movie-card:hover { transform: scale(1.05); z-index: 10; }
+        .movie-card img { width: 100%; height: 300px; object-fit: cover; }
+        .movie-info { padding: 10px; text-align: left; }
+        .movie-title { font-size: 14px; font-weight: bold; margin: 0; }
+        .type-tag { position: absolute; top: 10px; left: 10px; background: rgba(229, 9, 20, 0.8); padding: 2px 8px; border-radius: 2px; font-size: 10px; font-weight: bold; }
         
-        .admin-link { position: fixed; bottom: 15px; right: 15px; color: #444; text-decoration: none; font-size: 11px; }
+        .admin-btn { position: fixed; bottom: 20px; right: 20px; color: #444; text-decoration: none; font-size: 12px; }
     </style>
 </head>
 <body>
 
-    <nav class="navbar">
+    <div class="header">
         <a href="/" class="logo">STREAMDECK</a>
-        <a href="https://discord.gg/yGwPtXKEu" class="discord-btn" target="_blank">DEMANDE DE FILM (DISCORD)</a>
-    </nav>
+        <a href="https://discord.gg/yGwPtXKEu" class="discord-link" target="_blank">DEMANDE DE FILM : DISCORD</a>
+    </div>
 
-    <form class="filters" action="/">
-        <select name="genre" class="genre-select" onchange="this.form.submit()">
-            <option value="">Tous les Genres</option>
-            <option value="Horreur" {% if request.args.get('genre') == 'Horreur' %}selected{% endif %}>Horreur</option>
-            <option value="Humour" {% if request.args.get('genre') == 'Humour' %}selected{% endif %}>Humour</option>
-            <option value="Famille" {% if request.args.get('genre') == 'Famille' %}selected{% endif %}>Famille</option>
-        </select>
-        <input type="text" name="q" placeholder="Rechercher..." class="search" value="{{ request.args.get('q', '') }}">
-    </form>
+    <div class="main-content">
+        <form class="search-area" action="/">
+            <select name="genre" class="genre-box" onchange="this.form.submit()">
+                <option value="">Tous les Genres</option>
+                <option value="Horreur" {% if request.args.get('genre') == 'Horreur' %}selected{% endif %}>Horreur</option>
+                <option value="Humour" {% if request.args.get('genre') == 'Humour' %}selected{% endif %}>Humour</option>
+                <option value="Famille" {% if request.args.get('genre') == 'Famille' %}selected{% endif %}>Famille</option>
+            </select>
+            <input type="text" name="q" class="search-bar" placeholder="Rechercher un film..." value="{{ request.args.get('q', '') }}">
+        </form>
 
-    <div class="grid">
-        {% for f in films %}
-        <div class="card">
-            <span class="badge">{{ f.type.upper() }} | {{ f.genre }}</span>
-            <img src="{{ f.img }}">
-            <div class="card-body">
-                <h3 style="font-size: 15px; margin: 0; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">{{ f.nom }}</h3>
-                <a href="{% if f.type == 'film' %}{{ f.lien }}{% else %}/serie/{{ f.id }}{% endif %}" class="play-btn">
-                    {% if f.type == 'film' %}▶ REGARDER{% else %}📂 ÉPISODES{% endif %}
-                </a>
-            </div>
+        <div class="movie-grid">
+            {% for f in films %}
+            <a href="{% if f.type == 'film' %}{{ f.lien }}{% else %}/serie/{{ f.id }}{% endif %}" class="movie-card">
+                <span class="type-tag">{{ f.type.upper() }}</span>
+                <img src="{{ f.img }}" alt="{{ f.nom }}">
+                <div class="movie-info">
+                    <p class="movie-title">{{ f.nom }}</p>
+                    <p style="font-size: 11px; color: #888; margin: 5px 0 0 0;">{{ f.genre }}</p>
+                </div>
+            </a>
+            {% endfor %}
         </div>
-        {% endfor %}
     </div>
 
     {% if current_user.role == 'admin' %}
-    <a href="/admin" class="admin-link">🔧 ADMIN</a>
+    <a href="/admin" class="admin-btn">PANNEAU ADMIN</a>
     {% endif %}
 
 </body>
