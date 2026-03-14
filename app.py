@@ -28,17 +28,20 @@ class Video(db.Model):
 def load_user(uid):
     return User.query.get(int(uid))
 
-# --- INITIALISATION AUTOMATIQUE ---
-@app.before_request
-def initialisation():
-    db.create_all()
-    if not User.query.filter_by(role='admin').first():
-        admin = User(code='ADMIN123', role='admin')
-        db.session.add(admin)
-        db.session.commit()
+# --- FONCTION DE CRÉATION DES TABLES ---
+def setup_database():
+    with app.app_context():
+        db.create_all()
+        if not User.query.filter_by(role='admin').first():
+            admin = User(code='ADMIN123', role='admin')
+            db.session.add(admin)
+            db.session.commit()
+            print("Base de données initialisée avec l'admin ADMIN123")
+
+# On lance la création TOUT DE SUITE
+setup_database()
 
 # --- ROUTES ---
-
 @app.route('/')
 @login_required
 def index():
@@ -49,13 +52,14 @@ def index():
 def login():
     if request.method == 'POST':
         user_code = request.form.get('code')
+        # On utilise un try/except pour éviter le crash en cas de latence
         try:
             u = User.query.filter_by(code=user_code).first()
             if u:
                 login_user(u)
                 return redirect(url_for('index'))
-        except:
-            return "Base de données en cours... Actualisez."
+        except Exception as e:
+            return f"Erreur de base de données : {e}. Actualisez la page."
     return render_template('login.html')
 
 @app.route('/admin', methods=['GET', 'POST'])
@@ -70,24 +74,20 @@ def admin():
         db.session.commit()
         return redirect(url_for('admin'))
     
-    # On récupère la liste pour pouvoir les afficher (et les supprimer)
     tous_les_films = Video.query.all()
     return render_template('admin.html', films=tous_les_films)
 
-# --- NOUVELLE ROUTE : SUPPRIMER ---
 @app.route('/supprimer/<int:id>')
 @login_required
 def supprimer(id):
     if current_user.role != 'admin': 
         return redirect(url_for('index'))
-    
     film = Video.query.get(id)
     if film:
         db.session.delete(film)
         db.session.commit()
     return redirect(url_for('admin'))
 
-# --- LANCEMENT ---
 if __name__ == '__main__':
     port = int(os.environ.get("PORT", 10000))
     app.run(host='0.0.0.0', port=port)
