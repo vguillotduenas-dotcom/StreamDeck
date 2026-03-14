@@ -3,124 +3,95 @@
 <head>
     <title>Admin - Streamdeck</title>
     <style>
-        body { font-family: 'Segoe UI', sans-serif; background: #f0f2f5; padding: 20px; color: #333; }
-        .container { max-width: 800px; margin: auto; }
-        .card { background: white; padding: 25px; border-radius: 12px; box-shadow: 0 4px 10px rgba(0,0,0,0.1); margin-bottom: 30px; }
-        h2 { color: #e50914; margin-top: 0; border-bottom: 2px solid #eee; padding-bottom: 10px; }
-        input, select { padding: 12px; margin: 8px 0; width: 100%; border: 1px solid #ccc; border-radius: 6px; box-sizing: border-box; }
-        .btn { background: #e50914; color: white; border: none; padding: 14px; border-radius: 6px; cursor: pointer; width: 100%; font-weight: bold; margin-top: 10px; }
-        .btn-green { background: #28a745; margin-bottom: 20px; border: none; color: white; padding: 15px; border-radius: 6px; cursor: pointer; width: 100%; font-weight: bold; }
-        .btn-green:hover { background: #218838; }
-        .type-box { background: #f9f9f9; padding: 15px; border-radius: 8px; border: 1px dashed #e50914; margin: 10px 0; }
-        .hidden { display: none; }
-        
-        table { width: 100%; border-collapse: collapse; margin-top: 15px; }
-        th, td { padding: 12px; text-align: left; border-bottom: 1px solid #eee; }
-        .del { color: #ff4444; text-decoration: none; font-weight: bold; border: 1px solid #ff4444; padding: 4px 8px; border-radius: 4px; font-size: 12px; }
-        code { background: #fff3f3; color: #e50914; padding: 4px 8px; border-radius: 4px; font-weight: bold; border: 1px solid #ffcccc; }
+        body { font-family: sans-serif; background: #f4f4f4; padding: 20px; }
+        .card { background: white; padding: 20px; border-radius: 10px; margin-bottom: 20px; box-shadow: 0 2px 5px rgba(0,0,0,0.1); max-width: 600px; margin: auto; }
+        input, select { padding: 10px; margin: 10px 0; width: 100%; border: 1px solid #ddd; border-radius: 5px; box-sizing: border-box; }
+        .btn { background: #e50914; color: white; border: none; padding: 12px; border-radius: 5px; cursor: pointer; width: 100%; font-weight: bold; }
+        .serie-only { display: none; background: #fff5f5; padding: 15px; border-radius: 5px; border: 1px dashed #e50914; margin: 10px 0; }
+        table { width: 100%; border-collapse: collapse; margin-top: 20px; }
+        th, td { border-bottom: 1px solid #eee; padding: 10px; text-align: left; }
+        .del { color: red; text-decoration: none; font-size: 12px; border: 1px solid red; padding: 2px 5px; border-radius: 3px; }
+        h2 { color: #333; font-size: 18px; border-bottom: 2px solid #e50914; padding-bottom: 5px; }
     </style>
 </head>
 <body>
-    <div class="container">
-        <div style="text-align:center; margin-bottom: 20px;">
-            <a href="/" style="color:#666; text-decoration:none;">⬅ Retour au catalogue</a>
-        </div>
-
-        <div class="card">
-            <h2>🔑 Accès et Codes Invités</h2>
-            <p style="font-size: 13px; color: #666;">Clique sur le bouton pour créer un nouveau code d'accès unique.</p>
+    <div style="text-align: center; margin-bottom: 20px;">
+        <a href="/" style="text-decoration: none; color: #e50914; font-weight: bold;">⬅ RETOUR AU SITE</a>
+    </div>
+    
+    <div class="card">
+        <h2>🎥 Créer un nouveau contenu</h2>
+        <form method="POST">
+            <input type="hidden" name="add_content">
             
-            <form method="POST">
-                <button type="submit" name="gen_code" value="1" class="btn-green">✨ GÉNÉRER UN NOUVEAU CODE UNIQUE</button>
-            </form>
+            <label>Qu'est-ce que c'est ?</label>
+            <select name="type" id="typeSelect" onchange="toggleFields()">
+                <option value="film">Un Film</option>
+                <option value="serie">Une Nouvelle Série</option>
+            </select>
 
-            <table>
-                <thead>
-                    <tr>
-                        <th>Utilisateur</th>
-                        <th>Code</th>
-                        <th>Action</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    {% for u in users %}
-                    <tr>
-                        <td>
-                            {% if u.nom %} {{ u.nom }} {{ u.prenom }} {% else %} <i>En attente...</i> {% endif %}
-                        </td>
-                        <td><code>{{ u.code }}</code></td>
-                        <td><a href="{{ url_for('del_u', id=u.id) }}" class="del" onclick="return confirm('Bannir cet utilisateur ?')">🚫 BANNIR</a></td>
-                    </tr>
-                    {% endfor %}
-                </tbody>
-            </table>
-        </div>
+            <input type="text" name="nom" placeholder="Nom (ex: Les Simpson)" required>
+            <input type="text" name="img" placeholder="Lien de l'image (Affiche)" required>
+            
+            <select name="genre">
+                <option value="Humour">Humour</option>
+                <option value="Horreur">Horreur</option>
+                <option value="Famille">Famille</option>
+            </select>
 
-        <div class="card">
-            <h2>🎥 Ajouter un contenu</h2>
-            <form method="POST">
-                <input type="hidden" name="add_content">
-                <label>Type :</label>
-                <select name="type" id="typeSelect" onchange="updateForm()">
-                    <option value="film">🎞️ FILM</option>
-                    <option value="serie">📺 SÉRIE</option>
-                </select>
+            <div id="filmField">
+                <input type="text" name="lien_film" placeholder="Lien Google Drive du Film">
+            </div>
 
-                <input type="text" name="nom" placeholder="Nom du contenu" required>
-                <input type="text" name="img" placeholder="Lien de l'image (Affiche)" required>
-                
-                <select name="genre">
-                    <option value="Humour">Humour</option>
-                    <option value="Horreur">Horreur</option>
-                    <option value="Famille">Famille</option>
-                </select>
+            <div id="serieFields" class="serie-only">
+                <p style="margin:0; color: #e50914;"><strong>Détails du 1er épisode :</strong></p>
+                <input type="text" name="saison" placeholder="Saison (ex: Saison 1)">
+                <input type="text" name="titre_ep" placeholder="Nom de l'épisode (ex: Episode 1)">
+                <input type="text" name="lien_ep" placeholder="Lien Google Drive de la vidéo">
+            </div>
 
-                <div id="sectionFilm" class="type-box">
-                    <input type="text" name="lien_film" placeholder="Lien Google Drive du Film">
-                </div>
+            <button type="submit" class="btn">AJOUTER AU CATALOGUE</button>
+        </form>
+    </div>
 
-                <div id="sectionSerie" class="type-box hidden">
-                    <p style="margin:0; font-weight:bold; color:#e50914;">Premier épisode :</p>
-                    <input type="text" name="saison" placeholder="Saison (ex: 1)">
-                    <input type="text" name="titre_ep" placeholder="Épisode (ex: 1)">
-                    <input type="text" name="lien_ep" placeholder="Lien Google Drive de l'épisode">
-                </div>
+    <div class="card" style="border-top: 5px solid #333;">
+        <h2>➕ Ajouter des épisodes à une série</h2>
+        <form method="POST">
+            <input type="hidden" name="add_only_ep">
+            
+            <label>Choisir la série :</label>
+            <select name="video_id" required>
+                {% for f in films if f.type == 'serie' %}
+                    <option value="{{ f.id }}">{{ f.nom }}</option>
+                {% endfor %}
+            </select>
 
-                <button type="submit" class="btn">VALIDER L'AJOUT</button>
-            </form>
-        </div>
+            <input type="text" name="saison" placeholder="Saison (ex: Saison 1)" required>
+            <input type="text" name="titre_ep" placeholder="Numéro ou nom de l'épisode" required>
+            <input type="text" name="lien_ep" placeholder="Lien Google Drive de la vidéo" required>
+            
+            <button type="submit" class="btn" style="background: #333;">RAJOUTER CET ÉPISODE</button>
+        </form>
+    </div>
 
-        <div class="card">
-            <h2>📂 Gestion du Catalogue</h2>
-            <table>
-                <thead>
-                    <tr>
-                        <th>Titre</th>
-                        <th>Type</th>
-                        <th>Action</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    {% for f in films %}
-                    <tr>
-                        <td>{{ f.nom }}</td>
-                        <td>{{ f.type.upper() }}</td>
-                        <td><a href="{{ url_for('del_v', id=f.id) }}" class="del" onclick="return confirm('Supprimer ce film/série ?')">❌ SUPPRIMER</a></td>
-                    </tr>
-                    {% endfor %}
-                </tbody>
-            </table>
-        </div>
+    <div class="card">
+        <h2>📂 Liste des contenus (Supprimer)</h2>
+        <table>
+            {% for f in films %}
+            <tr>
+                <td><strong>{{ f.nom }}</strong> ({{ f.type }})</td>
+                <td style="text-align: right;"><a href="{{ url_for('del_v', id=f.id) }}" class="del" onclick="return confirm('Supprimer ?')">SUPPRIMER</a></td>
+            </tr>
+            {% endfor %}
+        </table>
     </div>
 
     <script>
-        function updateForm() {
+        function toggleFields() {
             var type = document.getElementById('typeSelect').value;
-            document.getElementById('sectionSerie').classList.toggle('hidden', type !== 'serie');
-            document.getElementById('sectionFilm').classList.toggle('hidden', type !== 'film');
+            document.getElementById('serieFields').style.display = (type === 'serie') ? 'block' : 'none';
+            document.getElementById('filmField').style.display = (type === 'film') ? 'block' : 'none';
         }
-        // Pour garder le bon affichage au rechargement
-        window.onload = updateForm;
     </script>
 </body>
 </html>
