@@ -1,71 +1,44 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <title>Admin - Gestion</title>
+    <title>Panel Admin</title>
     <style>
-        body { font-family: sans-serif; background: #141414; color: white; padding: 20px; }
-        form { background: #222; padding: 20px; border-radius: 8px; margin-bottom: 30px; }
-        input { display: block; width: 100%; margin: 10px 0; padding: 10px; }
-        button { background: #e50914; color: white; border: none; padding: 10px 20px; cursor: pointer; }
-        table { width: 100%; border-collapse: collapse; margin-top: 20px; }
-        th, td { border: 1px solid #444; padding: 10px; text-align: left; }
-        .btn-del { background: #555; text-decoration: none; color: white; padding: 5px 10px; border-radius: 4px; font-size: 12px; }
-        .btn-del:hover { background: #ff4444; }
+        body { background: #f4f4f4; font-family: Arial; padding: 20px; }
+        .section { background: white; padding: 20px; border-radius: 8px; margin-bottom: 20px; box-shadow: 0 2px 5px rgba(0,0,0,0.1); }
+        table { width: 100%; border-collapse: collapse; }
+        th, td { padding: 10px; border-bottom: 1px solid #ddd; text-align: left; }
+        .btn-del { color: red; text-decoration: none; font-weight: bold; }
     </style>
 </head>
 <body>
-    <h1>Ajouter un film</h1>
-    <form method="POST">
-        <input type="text" name="nom" placeholder="Nom du film" required>
-        <input type="text" name="img" placeholder="Lien de l'image (URL)" required>
-        <input type="text" name="lien" placeholder="Lien de la vidéo (URL)" required>
-        <button type="submit">Ajouter au Streamdeck</button>
-    </form>
+    <h1>🛠 Panneau de contrôle</h1>
 
-    <h2>Films existants</h2>
-    <table>
-        <tr>
-            <th>Titre</th>
-            <th>Action</th>
-        </tr>
-        {% for film in films %}
-        <tr>
-            <td>{{ film.nom }}</td>
-            <td><a href="{{ url_for('supprimer', id=film.id) }}" class="btn-del" onclick="return confirm('Supprimer ce film ?')">❌ Supprimer</a></td>
-        </tr>
-        {% endfor %}
-    </table>
-    
-    <br>
-    <a href="/" style="color: gray;">Retour à l'accueil</a>
-</body>
-</html><!DOCTYPE html>
-<html lang="fr">
-<body style="background:#111; color:white; font-family:sans-serif; padding:20px;">
-    <h2>Ajouter un film</h2>
-    <form method="POST">
-        <input type="text" name="nom" placeholder="Titre" required><br><br>
-        <input type="text" name="img" placeholder="Lien image" required><br><br>
-        <input type="text" name="lien" placeholder="Lien vidéo" required><br><br>
-        <button type="submit">AJOUTER</button>
-    </form>
-    <br><a href="/" style="color:white;">Retour</a>
+    <div class="section">
+        <h2>🎥 Ajouter un film</h2>
+        <form method="POST">
+            <input type="hidden" name="add_video">
+            <input type="text" name="nom" placeholder="Titre" required>
+            <input type="text" name="img" placeholder="Lien image" required>
+            <input type="text" name="lien" placeholder="Lien vidéo" required>
+            <button type="submit">Ajouter</button>
+        </form>
+    </div>
+
+    <div class="section">
+        <h2>🔑 Accès Invités</h2>
+        <form method="POST">
+            <button type="submit" name="gen_code">Générer un nouveau code unique</button>
+        </form>
+        <table>
+            <tr><th>Nom / Prénom</th><th>Code</th><th>Action</th></tr>
+            {% for u in users %}
+            <tr>
+                <td>{{ u.nom }} {{ u.prenom }}</td>
+                <td><code>{{ u.code }}</code></td>
+                <td><a href="{{ url_for('del_user', id=u.id) }}" class="btn-del">Supprimer/Bannir</a></td>
+            </tr>
+            {% endfor %}
+        </table>
+    </div>
 </body>
 </html>
-<h2>Générer un accès invité</h2>
-<form method="POST">
-    <button type="submit" name="gen_code">Créer un nouveau code unique</button>
-</form>
-
-<h2>Liste des utilisateurs</h2>
-<table>
-    <tr><th>Nom</th><th>Prénom</th><th>Code</th><th>Action</th></tr>
-    {% for u in users %}
-    <tr>
-        <td>{{ u.nom or 'Pas encore inscrit' }}</td>
-        <td>{{ u.prenom or '-' }}</td>
-        <td><strong>{{ u.code }}</strong></td>
-        <td><a href="{{ url_for('supprimer_user', id=u.id) }}">Bannir/Déconnecter</a></td>
-    </tr>
-    {% endfor %}
-</table>
