@@ -1,31 +1,13 @@
-<body style="font-family:sans-serif; padding:20px; background:#f9f9f9;">
-    <h1>🛠️ Administration StreamDeck</h1>
-    <a href="/">⬅ Retour au site</a>
-    
-    <div style="background:white; padding:20px; border-radius:10px; margin-top:20px; box-shadow: 0 2px 5px rgba(0,0,0,0.1);">
-        <h3>Ajouter un nouveau média</h3>
-        <form method="POST">
-            <input type="text" name="title" placeholder="Titre du film ou série" style="width:100%; margin-bottom:10px;" required><br>
-            <select name="category" style="width:100%; margin-bottom:10px;">
-                <option value="Film">Film</option>
-                <option value="Série">Série</option>
-            </select><br>
-            <input type="text" name="season" placeholder="Saison (ex: 1)" style="width:100%; margin-bottom:10px;"><br>
-            <input type="text" name="poster" placeholder="Lien URL de l'affiche (image)" style="width:100%; margin-bottom:10px;" required><br>
-            <input type="text" name="video" placeholder="Lien URL de la vidéo (Drive, YouTube...)" style="width:100%; margin-bottom:10px;" required><br>
-            <button type="submit" style="background:green; color:white; padding:10px; width:100%; border:none; cursor:pointer;">AJOUTER MAINTENANT</button>
-        </form>
-    </div>
-
-    <div style="margin-top:40px;">
-        <h3>👥 Invités actifs</h3>
-        <a href="/generate_user" style="background:blue; color:white; padding:10px; text-decoration:none; border-radius:5px;">+ Créer un nouveau code d'accès</a>
-        <ul style="margin-top:20px;">
-            {% for user in users %}
-            <li style="margin-bottom:10px;">Code : <code style="background:#eee; padding:5px;">{{ user.password }}</code> 
-                <a href="/delete_user/{{ user.id }}" style="color:red; margin-left:20px;">Supprimer l'accès</a>
-            </li>
-            {% endfor %}
-        </ul>
-    </div>
+<!DOCTYPE html>
+<html lang="fr">
+<body style="background:#111; color:white; font-family:sans-serif; padding:20px;">
+    <h2>Ajouter un film</h2>
+    <form method="POST">
+        <input type="text" name="nom" placeholder="Titre" required><br><br>
+        <input type="text" name="img" placeholder="Lien image" required><br><br>
+        <input type="text" name="lien" placeholder="Lien vidéo" required><br><br>
+        <button type="submit">AJOUTER</button>
+    </form>
+    <br><a href="/" style="color:white;">Retour</a>
 </body>
+</html>
