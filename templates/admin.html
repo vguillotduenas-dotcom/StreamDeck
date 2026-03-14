@@ -1,4 +1,45 @@
 <!DOCTYPE html>
+<html>
+<head>
+    <title>Admin - Gestion</title>
+    <style>
+        body { font-family: sans-serif; background: #141414; color: white; padding: 20px; }
+        form { background: #222; padding: 20px; border-radius: 8px; margin-bottom: 30px; }
+        input { display: block; width: 100%; margin: 10px 0; padding: 10px; }
+        button { background: #e50914; color: white; border: none; padding: 10px 20px; cursor: pointer; }
+        table { width: 100%; border-collapse: collapse; margin-top: 20px; }
+        th, td { border: 1px solid #444; padding: 10px; text-align: left; }
+        .btn-del { background: #555; text-decoration: none; color: white; padding: 5px 10px; border-radius: 4px; font-size: 12px; }
+        .btn-del:hover { background: #ff4444; }
+    </style>
+</head>
+<body>
+    <h1>Ajouter un film</h1>
+    <form method="POST">
+        <input type="text" name="nom" placeholder="Nom du film" required>
+        <input type="text" name="img" placeholder="Lien de l'image (URL)" required>
+        <input type="text" name="lien" placeholder="Lien de la vidéo (URL)" required>
+        <button type="submit">Ajouter au Streamdeck</button>
+    </form>
+
+    <h2>Films existants</h2>
+    <table>
+        <tr>
+            <th>Titre</th>
+            <th>Action</th>
+        </tr>
+        {% for film in films %}
+        <tr>
+            <td>{{ film.nom }}</td>
+            <td><a href="{{ url_for('supprimer', id=film.id) }}" class="btn-del" onclick="return confirm('Supprimer ce film ?')">❌ Supprimer</a></td>
+        </tr>
+        {% endfor %}
+    </table>
+    
+    <br>
+    <a href="/" style="color: gray;">Retour à l'accueil</a>
+</body>
+</html><!DOCTYPE html>
 <html lang="fr">
 <body style="background:#111; color:white; font-family:sans-serif; padding:20px;">
     <h2>Ajouter un film</h2>
