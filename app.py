@@ -79,7 +79,8 @@ def admin():
     if current_user.role != 'admin': return redirect(url_for('index'))
     if request.method == 'POST':
         # Action : Créer un nouveau contenu (Film ou Série)
-        if 'add_content' in request.form:
-            v_type = request.form['type']
-            v = Video(nom=request.form['nom'], img=request.form['img'], 
-                      lien=request.form.get('lien_film'), type=v_type, genre=request.form['genre'])
+       if __name__ == '__main__':
+    # Render définit automatiquement un PORT, on doit l'utiliser
+    port = int(os.environ.get("PORT", 5000))
+    # On force l'écoute sur 0.0.0.0 pour que Render puisse voir l'app
+    app.run(host='0.0.0.0', port=port)
