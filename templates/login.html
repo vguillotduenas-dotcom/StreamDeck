@@ -5,14 +5,13 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Streamdeck - Connexion</title>
     <style>
-        body { background: #000; color: white; font-family: Arial, sans-serif; display: flex; justify-content: center; align-items: center; height: 100vh; margin: 0; overflow: hidden; }
-        .login-box { background: rgba(20, 20, 20, 0.95); padding: 40px; border-radius: 10px; width: 100%; max-width: 350px; text-align: center; border: 1px solid #333; box-shadow: 0 0 20px rgba(229, 9, 20, 0.2); }
-        h1 { color: #e50914; font-size: 32px; margin-bottom: 25px; letter-spacing: 2px; }
-        input { width: 100%; padding: 12px; margin: 10px 0; background: #333; border: none; color: white; border-radius: 4px; box-sizing: border-box; }
-        .btn-red { width: 100%; padding: 12px; background: #e50914; color: white; border: none; font-weight: bold; cursor: pointer; border-radius: 4px; font-size: 16px; transition: 0.3s; }
-        .btn-red:hover { background: #ff0000; }
-        .admin-link { margin-top: 30px; display: block; color: #555; text-decoration: none; font-size: 13px; cursor: pointer; }
-        #admin-form { display: none; margin-top: 20px; border-top: 1px solid #222; padding-top: 20px; }
+        body { background: #000; color: white; font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif; display: flex; justify-content: center; align-items: center; height: 100vh; margin: 0; }
+        .login-box { background: rgba(0, 0, 0, 0.75); padding: 60px; border-radius: 8px; width: 100%; max-width: 400px; text-align: center; box-sizing: border-box; }
+        h1 { color: #e50914; font-size: 35px; margin-bottom: 25px; }
+        input { width: 100%; padding: 15px; margin: 10px 0; background: #333; border: none; color: white; border-radius: 4px; box-sizing: border-box; }
+        .btn-red { width: 100%; padding: 15px; background: #e50914; color: white; border: none; font-weight: bold; cursor: pointer; border-radius: 4px; font-size: 16px; margin-top: 10px; }
+        .admin-link { margin-top: 40px; display: block; color: #555; text-decoration: none; font-size: 12px; cursor: pointer; }
+        #admin-form { display: none; margin-top: 20px; border-top: 1px solid #333; padding-top: 20px; }
     </style>
 </head>
 <body>
@@ -21,17 +20,16 @@
         <form method="POST">
             <input type="text" name="nom" placeholder="Ton Nom" required>
             <input type="text" name="prenom" placeholder="Ton Prénom" required>
-            <input type="text" name="code" placeholder="Code d'accès unique" required>
+            <input type="text" name="code" placeholder="Code d'accès" required>
             <button type="submit" class="btn-red">SE CONNECTER</button>
         </form>
 
-        <span class="admin-link" onclick="document.getElementById('admin-form').style.display='block'">Accès Administrateur</span>
+        <span class="admin-link" onclick="document.getElementById('admin-form').style.display='block'">Accès Privé</span>
         <div id="admin-form">
             <form method="POST">
-                <input type="password" name="code" placeholder="Code Admin">
-                <button type="submit" style="background:#222; color:#888; border:1px solid #444; padding:5px; cursor:pointer; width:100%;">Entrer</button>
+                <input type="password" name="code" placeholder="Mot de passe Admin">
+                <button type="submit" style="background:#222; color:#888; border:none; padding:5px; width:100%; cursor:pointer;">Entrer</button>
             </form>
         </div>
     </div>
 </body>
-</html>
