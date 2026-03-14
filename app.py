@@ -4,7 +4,7 @@ from flask_sqlalchemy import SQLAlchemy
 from flask_login import LoginManager, UserMixin, login_user, login_required, current_user
 
 app = Flask(__name__)
-app.config['SECRET_KEY'] = 'ma-super-cle-123'
+app.config['SECRET_KEY'] = 'cle-secrete-streamdeck-2024'
 app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///data.db'
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 
@@ -12,7 +12,7 @@ db = SQLAlchemy(app)
 login_manager = LoginManager(app)
 login_manager.login_view = 'login'
 
-# --- MODÈLES ---
+# --- MODÈLES (Base de données) ---
 class User(UserMixin, db.Model):
     id = db.Column(db.Integer, primary_key=True)
     nom = db.Column(db.String(100))
@@ -42,6 +42,7 @@ def load_user(uid):
 
 with app.app_context():
     db.create_all()
+    # Création du compte admin par défaut si inexistant
     if not User.query.filter_by(role='admin').first():
         db.session.add(User(nom="Admin", prenom="Boss", code='ADMIN123', role='admin'))
         db.session.commit()
@@ -76,70 +77,9 @@ def login():
 @login_required
 def admin():
     if current_user.role != 'admin': return redirect(url_for('index'))
-    
     if request.method == 'POST':
-        # Action : Ajouter Film ou Série
+        # Action : Créer un nouveau contenu (Film ou Série)
         if 'add_content' in request.form:
-            v_type = request.form.get('type')
-            v = Video(
-                nom=request.form.get('nom'),
-                img=request.form.get('img'),
-                lien=request.form.get('lien_film') if v_type == 'film' else None,
-                type=v_type,
-                genre=request.form.get('genre')
-            )
-            db.session.add(v)
-            db.session.flush()
-            
-            if v_type == 'serie':
-                ep = Episode(
-                    video_id=v.id,
-                    saison=f"Saison {request.form.get('saison')}",
-                    titre_ep=f"Épisode {request.form.get('titre_ep')}",
-                    lien_ep=request.form.get('lien_ep')
-                )
-                db.session.add(ep)
-        
-        # Action : Générer code
-        elif 'gen_code' in request.form:
-            nouveau_code = str(uuid.uuid4())[:8].upper()
-            db.session.add(User(code=nouveau_code, role='user'))
-            
-        db.session.commit()
-        return redirect(url_for('admin'))
-
-    tous_les_films = Video.query.all()
-    tous_les_utilisateurs = User.query.filter_by(role='user').all()
-    return render_template('admin.html', films=tous_les_films, users=tous_les_utilisateurs)
-
-# Route pour voir les épisodes d'une série
-@app.route('/serie/<int:id>')
-@login_required
-def serie_details(id):
-    serie = Video.query.get_or_404(id)
-    return render_template('serie.html', serie=serie)
-
-# Route pour supprimer un film/série
-@app.route('/del_v/<int:id>')
-@login_required
-def del_v(id):
-    if current_user.role == 'admin':
-        video = Video.query.get(id)
-        if video:
-            db.session.delete(video)
-            db.session.commit()
-    return redirect(url_for('admin'))
-
-# Route pour bannir un utilisateur
-@app.route('/del_u/<int:id>')
-@login_required
-def del_u(id):
-    if current_user.role == 'admin':
-        user = User.query.get(id)
-        if user:
-            db.session.delete(user)
-            db.session.commit()
-    return redirect(url_for('admin'))
-
-if __name__ == '__main__':
-    app.run(host='0.0.0.0', port=10000)
+            v_type = request.form['type']
+            v = Video(nom=request.form['nom'], img=request.form['img'], 
+                      lien=request.form.get('lien_film'), type=v_type, genre=request.form['genre'])
