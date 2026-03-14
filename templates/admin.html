@@ -1,44 +1,20 @@
-<!DOCTYPE html>
-<html>
-<head>
-    <title>Panel Admin</title>
-    <style>
-        body { background: #f4f4f4; font-family: Arial; padding: 20px; }
-        .section { background: white; padding: 20px; border-radius: 8px; margin-bottom: 20px; box-shadow: 0 2px 5px rgba(0,0,0,0.1); }
-        table { width: 100%; border-collapse: collapse; }
-        th, td { padding: 10px; border-bottom: 1px solid #ddd; text-align: left; }
-        .btn-del { color: red; text-decoration: none; font-weight: bold; }
-    </style>
-</head>
-<body>
-    <h1>🛠 Panneau de contrôle</h1>
+<select name="type">
+    <option value="film">Film</option>
+    <option value="serie">Série</option>
+</select>
 
-    <div class="section">
-        <h2>🎥 Ajouter un film</h2>
-        <form method="POST">
-            <input type="hidden" name="add_video">
-            <input type="text" name="nom" placeholder="Titre" required>
-            <input type="text" name="img" placeholder="Lien image" required>
-            <input type="text" name="lien" placeholder="Lien vidéo" required>
-            <button type="submit">Ajouter</button>
-        </form>
-    </div>
+<hr>
 
-    <div class="section">
-        <h2>🔑 Accès Invités</h2>
-        <form method="POST">
-            <button type="submit" name="gen_code">Générer un nouveau code unique</button>
-        </form>
-        <table>
-            <tr><th>Nom / Prénom</th><th>Code</th><th>Action</th></tr>
-            {% for u in users %}
-            <tr>
-                <td>{{ u.nom }} {{ u.prenom }}</td>
-                <td><code>{{ u.code }}</code></td>
-                <td><a href="{{ url_for('del_user', id=u.id) }}" class="btn-del">Supprimer/Bannir</a></td>
-            </tr>
-            {% endfor %}
-        </table>
-    </div>
-</body>
-</html>
+<h2>➕ Ajouter un épisode à une série</h2>
+<form method="POST">
+    <input type="hidden" name="add_episode">
+    <select name="video_id">
+        {% for f in films if f.type == 'serie' %}
+            <option value="{{ f.id }}">{{ f.nom }}</option>
+        {% endfor %}
+    </select>
+    <input type="text" name="saison" placeholder="Saison 1">
+    <input type="text" name="titre" placeholder="Nom de l'épisode">
+    <input type="text" name="lien_ep" placeholder="Lien vidéo de l'épisode">
+    <button type="submit">Ajouter l'épisode</button>
+</form>
