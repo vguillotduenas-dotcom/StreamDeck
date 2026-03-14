@@ -3,31 +3,30 @@
 <head>
     <title>Admin - Streamdeck</title>
     <style>
-        body { font-family: sans-serif; background: #f4f4f4; padding: 20px; }
-        .card { background: white; padding: 20px; border-radius: 10px; margin-bottom: 20px; box-shadow: 0 2px 5px rgba(0,0,0,0.1); max-width: 600px; margin: auto; }
-        input, select { padding: 10px; margin: 10px 0; width: 100%; border: 1px solid #ddd; border-radius: 5px; box-sizing: border-box; }
-        .btn { background: #e50914; color: white; border: none; padding: 12px; border-radius: 5px; cursor: pointer; width: 100%; font-weight: bold; }
-        .serie-only { display: none; background: #f9f9f9; padding: 10px; border-radius: 5px; border-left: 4px solid #e50914; }
-        table { width: 100%; border-collapse: collapse; margin-top: 20px; }
-        th, td { border-bottom: 1px solid #eee; padding: 10px; text-align: left; }
-        .del { color: red; text-decoration: none; font-size: 12px; border: 1px solid red; padding: 2px 5px; border-radius: 3px; }
+        body { font-family: 'Segoe UI', sans-serif; background: #f0f2f5; padding: 20px; }
+        .card { background: white; padding: 25px; border-radius: 12px; box-shadow: 0 4px 10px rgba(0,0,0,0.1); max-width: 500px; margin: 20px auto; }
+        h2 { color: #e50914; margin-top: 0; }
+        input, select { padding: 12px; margin: 8px 0; width: 100%; border: 1px solid #ccc; border-radius: 6px; box-sizing: border-box; font-size: 14px; }
+        .btn { background: #e50914; color: white; border: none; padding: 14px; border-radius: 6px; cursor: pointer; width: 100%; font-weight: bold; margin-top: 10px; }
+        .type-box { background: #f9f9f9; padding: 15px; border-radius: 8px; border: 1px dashed #e50914; margin: 10px 0; }
+        .hidden { display: none; }
     </style>
 </head>
 <body>
-    <div style="text-align: center;"><a href="/" style="text-decoration: none; color: #666;">⬅ Retour au site</a></div>
-    
+    <div style="text-align:center"><a href="/" style="color:#666; text-decoration:none;">⬅ Retour au catalogue</a></div>
+
     <div class="card">
-        <h2>🎥 Ajouter un nouveau contenu</h2>
+        <h2>🎥 Ajouter un contenu</h2>
         <form method="POST">
             <input type="hidden" name="add_content">
             
-            <label>Type de contenu :</label>
-            <select name="type" id="typeSelect" onchange="toggleFields()">
-                <option value="film">Film</option>
-                <option value="serie">Série</option>
+            <label>1. Choisis le type :</label>
+            <select name="type" id="typeSelect" onchange="updateForm()">
+                <option value="film">🎞️ FILM</option>
+                <option value="serie">📺 SÉRIE</option>
             </select>
 
-            <input type="text" name="nom" placeholder="Nom (ex: Les Simpson)" required>
+            <input type="text" name="nom" placeholder="Nom du Film ou de la Série" required>
             <input type="text" name="img" placeholder="Lien de l'image (Affiche)" required>
             
             <select name="genre">
@@ -36,38 +35,26 @@
                 <option value="Famille">Famille</option>
             </select>
 
-            <div id="filmField">
+            <div id="sectionFilm" class="type-box">
                 <input type="text" name="lien_film" placeholder="Lien Google Drive du Film">
             </div>
 
-            <div id="serieFields" class="serie-only">
-                <p><strong>Premier épisode :</strong></p>
-                <input type="text" name="saison" placeholder="Saison (ex: Saison 1)">
-                <input type="text" name="titre_ep" placeholder="Nom de l'épisode (ex: Episode 1)">
+            <div id="sectionSerie" class="type-box hidden">
+                <p style="margin:0; font-weight:bold; color:#e50914;">Détails du premier épisode :</p>
+                <input type="text" name="saison" placeholder="Saison (ex: 1)">
+                <input type="text" name="titre_ep" placeholder="Numéro Épisode (ex: 1)">
                 <input type="text" name="lien_ep" placeholder="Lien Google Drive de l'épisode">
             </div>
 
-            <button type="submit" class="btn">AJOUTER AU CATALOGUE</button>
+            <button type="submit" class="btn">VALIDER L'AJOUT</button>
         </form>
     </div>
 
-    <div class="card">
-        <h2>📂 Gérer / Supprimer</h2>
-        <table>
-            {% for f in films %}
-            <tr>
-                <td>{{ f.nom }} ({{ f.type }})</td>
-                <td><a href="{{ url_for('del_v', id=f.id) }}" class="del">SUPPRIMER</a></td>
-            </tr>
-            {% endfor %}
-        </table>
-    </div>
-
     <script>
-        function toggleFields() {
+        function updateForm() {
             var type = document.getElementById('typeSelect').value;
-            document.getElementById('serieFields').style.display = (type === 'serie') ? 'block' : 'none';
-            document.getElementById('filmField').style.display = (type === 'film') ? 'block' : 'none';
+            document.getElementById('sectionSerie').classList.toggle('hidden', type !== 'serie');
+            document.getElementById('sectionFilm').classList.toggle('hidden', type !== 'film');
         }
     </script>
 </body>
