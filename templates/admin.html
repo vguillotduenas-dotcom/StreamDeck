@@ -4,58 +4,88 @@
     <title>Admin - Streamdeck</title>
     <style>
         body { font-family: 'Segoe UI', sans-serif; background: #f0f2f5; padding: 20px; }
-        .card { background: white; padding: 25px; border-radius: 12px; box-shadow: 0 4px 10px rgba(0,0,0,0.1); max-width: 500px; margin: 20px auto; }
-        h2 { color: #e50914; margin-top: 0; }
-        input, select { padding: 12px; margin: 8px 0; width: 100%; border: 1px solid #ccc; border-radius: 6px; box-sizing: border-box; font-size: 14px; }
+        .container { max-width: 800px; margin: auto; }
+        .card { background: white; padding: 25px; border-radius: 12px; box-shadow: 0 4px 10px rgba(0,0,0,0.1); margin-bottom: 30px; }
+        h2 { color: #e50914; margin-top: 0; border-bottom: 2px solid #eee; padding-bottom: 10px; }
+        input, select { padding: 12px; margin: 8px 0; width: 100%; border: 1px solid #ccc; border-radius: 6px; box-sizing: border-box; }
         .btn { background: #e50914; color: white; border: none; padding: 14px; border-radius: 6px; cursor: pointer; width: 100%; font-weight: bold; margin-top: 10px; }
+        .btn-green { background: #28a745; margin-bottom: 20px; }
         .type-box { background: #f9f9f9; padding: 15px; border-radius: 8px; border: 1px dashed #e50914; margin: 10px 0; }
         .hidden { display: none; }
+        
+        table { width: 100%; border-collapse: collapse; margin-top: 15px; }
+        th, td { padding: 12px; text-align: left; border-bottom: 1px solid #eee; }
+        .del { color: #ff4444; text-decoration: none; font-weight: bold; border: 1px solid #ff4444; padding: 4px 8px; border-radius: 4px; font-size: 12px; }
+        .del:hover { background: #ff4444; color: white; }
+        code { background: #eee; padding: 2px 5px; border-radius: 3px; font-weight: bold; }
     </style>
 </head>
 <body>
-    <div style="text-align:center"><a href="/" style="color:#666; text-decoration:none;">⬅ Retour au catalogue</a></div>
+    <div class="container">
+        <div style="text-align:center; margin-bottom: 20px;">
+            <a href="/" style="color:#666; text-decoration:none;">⬅ Retour au catalogue</a>
+        </div>
 
-    <div class="card">
-        <h2>🎥 Ajouter un contenu</h2>
-        <form method="POST">
-            <input type="hidden" name="add_content">
-            
-            <label>1. Choisis le type :</label>
-            <select name="type" id="typeSelect" onchange="updateForm()">
-                <option value="film">🎞️ FILM</option>
-                <option value="serie">📺 SÉRIE</option>
-            </select>
+        <div class="card">
+            <h2>🎥 Ajouter un contenu</h2>
+            <form method="POST">
+                <input type="hidden" name="add_content">
+                <label>Type :</label>
+                <select name="type" id="typeSelect" onchange="updateForm()">
+                    <option value="film">🎞️ FILM</option>
+                    <option value="serie">📺 SÉRIE</option>
+                </select>
 
-            <input type="text" name="nom" placeholder="Nom du Film ou de la Série" required>
-            <input type="text" name="img" placeholder="Lien de l'image (Affiche)" required>
-            
-            <select name="genre">
-                <option value="Humour">Humour</option>
-                <option value="Horreur">Horreur</option>
-                <option value="Famille">Famille</option>
-            </select>
+                <input type="text" name="nom" placeholder="Nom du contenu" required>
+                <input type="text" name="img" placeholder="Lien de l'image (Affiche)" required>
+                
+                <select name="genre">
+                    <option value="Humour">Humour</option>
+                    <option value="Horreur">Horreur</option>
+                    <option value="Famille">Famille</option>
+                </select>
 
-            <div id="sectionFilm" class="type-box">
-                <input type="text" name="lien_film" placeholder="Lien Google Drive du Film">
-            </div>
+                <div id="sectionFilm" class="type-box">
+                    <input type="text" name="lien_film" placeholder="Lien Google Drive du Film">
+                </div>
 
-            <div id="sectionSerie" class="type-box hidden">
-                <p style="margin:0; font-weight:bold; color:#e50914;">Détails du premier épisode :</p>
-                <input type="text" name="saison" placeholder="Saison (ex: 1)">
-                <input type="text" name="titre_ep" placeholder="Numéro Épisode (ex: 1)">
-                <input type="text" name="lien_ep" placeholder="Lien Google Drive de l'épisode">
-            </div>
+                <div id="sectionSerie" class="type-box hidden">
+                    <p style="margin:0; font-weight:bold; color:#e50914;">Premier épisode :</p>
+                    <input type="text" name="saison" placeholder="Saison (ex: 1)">
+                    <input type="text" name="titre_ep" placeholder="Épisode (ex: 1)">
+                    <input type="text" name="lien_ep" placeholder="Lien Google Drive de l'épisode">
+                </div>
 
-            <button type="submit" class="btn">VALIDER L'AJOUT</button>
-        </form>
-    </div>
+                <button type="submit" class="btn">VALIDER L'AJOUT</button>
+            </form>
+        </div>
 
-    <script>
-        function updateForm() {
-            var type = document.getElementById('typeSelect').value;
-            document.getElementById('sectionSerie').classList.toggle('hidden', type !== 'serie');
-            document.getElementById('sectionFilm').classList.toggle('hidden', type !== 'film');
-        }
-    </script>
-</body>
-</html>
+        <div class="card">
+            <h2>🔑 Accès et Codes Invités</h2>
+            <form method="POST">
+                <button type="submit" name="gen_code" class="btn btn-green">✨ GÉNÉRER UN NOUVEAU CODE UNIQUE</button>
+            </form>
+
+            <table>
+                <thead>
+                    <tr>
+                        <th>Utilisateur</th>
+                        <th>Code</th>
+                        <th>Action</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for u in users %}
+                    <tr>
+                        <td>{{ u.nom }} {{ u.prenom if u.prenom else "" }}</td>
+                        <td><code>{{ u.code }}</code></td>
+                        <td><a href="{{ url_for('del_u', id=u.id) }}" class="del" onclick="return confirm('Bannir cet utilisateur ?')">🚫 BANNIR</a></td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+
+        <div class="card">
+            <h2>📂 Gestion du Catalogue</h2>
+            <table>
