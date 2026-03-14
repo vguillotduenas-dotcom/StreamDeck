@@ -60,4 +60,7 @@ if __name__ == '__main__':
         if not User.query.filter_by(role='admin').first():
             db.session.add(User(code='ADMIN123', role='admin'))
             db.session.commit()
-    app.run(host='0.0.0.0', port=int(os.environ.get("PORT", 5000)))
+    
+    # CETTE PARTIE EST CRUCIALE POUR RENDER :
+    port = int(os.environ.get("PORT", 10000)) # On force le port 10000 si PORT n'est pas défini
+    app.run(host='0.0.0.0', port=port)
