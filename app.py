@@ -4,7 +4,7 @@ from flask_sqlalchemy import SQLAlchemy
 from flask_login import LoginManager, UserMixin, login_user, login_required, current_user
 
 app = Flask(__name__)
-app.config['SECRET_KEY'] = 'ma-cle-ultra-secrete'
+app.config['SECRET_KEY'] = 'streamdeck-ultra-key'
 app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///data.db'
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 
@@ -24,8 +24,8 @@ class Video(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     nom = db.Column(db.String(200))
     img = db.Column(db.String(500))
-    lien = db.Column(db.String(500))
-    type = db.Column(db.String(20))
+    lien = db.Column(db.String(500)) 
+    type = db.Column(db.String(20)) 
     genre = db.Column(db.String(50))
     episodes = db.relationship('Episode', backref='video', cascade="all, delete-orphan")
 
@@ -75,12 +75,26 @@ def login():
 def admin():
     if current_user.role != 'admin': return redirect(url_for('index'))
     if request.method == 'POST':
-        if 'add_video' in request.form:
-            db.session.add(Video(nom=request.form['nom'], img=request.form['img'], lien=request.form['lien'], type=request.form['type'], genre=request.form['genre']))
-        elif 'add_episode' in request.form:
-            db.session.add(Episode(video_id=request.form['video_id'], saison=request.form['saison'], titre_ep=request.form['titre'], lien_ep=request.form['lien_ep']))
+        if 'add_content' in request.form:
+            v_type = request.form['type']
+            nom = request.form['nom']
+            # On crée l'entrée principale (Film ou Série)
+            v = Video(nom=nom, img=request.form['img'], lien=request.form.get('lien_film'), type=v_type, genre=request.form['genre'])
+            db.session.add(v)
+            db.session.flush() # Récupère l'ID immédiatement
+            
+            # Si c'est une série, on ajoute le premier épisode directement
+            if v_type == 'serie':
+                ep = Episode(video_id=v.id, saison=request.form['saison'], titre_ep=request.form['titre_ep'], lien_ep=request.form['lien_ep'])
+                db.session.add(ep)
+        
+        elif 'add_only_ep' in request.form:
+            ep = Episode(video_id=request.form['video_id'], saison=request.form['saison'], titre_ep=request.form['titre_ep'], lien_ep=request.form['lien_ep'])
+            db.session.add(ep)
+            
         elif 'gen_code' in request.form:
             db.session.add(User(code=str(uuid.uuid4())[:8].upper()))
+            
         db.session.commit()
         return redirect(url_for('admin'))
     return render_template('admin.html', films=Video.query.all(), users=User.query.filter_by(role='user').all())
