@@ -1,10 +1,11 @@
 import os
-from flask import Flask, render_template, request, redirect, url_for
+from flask import Flask, render_template, request, redirect, url_for, flash
 from flask_sqlalchemy import SQLAlchemy
-from flask_login import LoginManager, UserMixin, login_user, login_required, current_user
+from flask_login import LoginManager, UserMixin, login_user, login_required, logout_user, current_user
+from datetime import datetime
 
 app = Flask(__name__)
-app.config['SECRET_KEY'] = 'cle-secrete-123'
+app.config['SECRET_KEY'] = 'ma-super-cle-secrete'
 app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///data.db'
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 
@@ -15,8 +16,10 @@ login_manager.login_view = 'login'
 # --- MODÈLES ---
 class User(UserMixin, db.Model):
     id = db.Column(db.Integer, primary_key=True)
+    nom = db.Column(db.String(100))
+    prenom = db.Column(db.String(100))
     code = db.Column(db.String(100), unique=True)
-    role = db.Column(db.String(20))
+    role = db.Column(db.String(20), default='user') # 'admin' ou 'user'
 
 class Video(db.Model):
     id = db.Column(db.Integer, primary_key=True)
@@ -28,20 +31,16 @@ class Video(db.Model):
 def load_user(uid):
     return User.query.get(int(uid))
 
-# --- FONCTION DE CRÉATION DES TABLES ---
-def setup_database():
-    with app.app_context():
-        db.create_all()
-        if not User.query.filter_by(role='admin').first():
-            admin = User(code='ADMIN123', role='admin')
-            db.session.add(admin)
-            db.session.commit()
-            print("Base de données initialisée avec l'admin ADMIN123")
-
-# On lance la création TOUT DE SUITE
-setup_database()
+# --- INITIALISATION ---
+with app.app_context():
+    db.create_all()
+    if not User.query.filter_by(role='admin').first():
+        admin = User(nom="Admin", prenom="Principal", code='ADMIN123', role='admin')
+        db.session.add(admin)
+        db.session.commit()
 
 # --- ROUTES ---
+
 @app.route('/')
 @login_required
 def index():
@@ -51,15 +50,21 @@ def index():
 @app.route('/login', methods=['GET', 'POST'])
 def login():
     if request.method == 'POST':
-        user_code = request.form.get('code')
-        # On utilise un try/except pour éviter le crash en cas de latence
-        try:
-            u = User.query.filter_by(code=user_code).first()
-            if u:
-                login_user(u)
-                return redirect(url_for('index'))
-        except Exception as e:
-            return f"Erreur de base de données : {e}. Actualisez la page."
+        code_saisi = request.form.get('code')
+        nom = request.form.get('nom')
+        prenom = request.form.get('prenom')
+        
+        user = User.query.filter_by(code=code_saisi).first()
+        
+        if user:
+            # Si c'est un nouvel utilisateur (pas encore de nom enregistré)
+            if user.role == 'user' and not user.nom:
+                user.nom = nom
+                user.prenom = prenom
+                db.session.commit()
+            
+            login_user(user, remember=True) # "remember=True" pour rester connecté à vie
+            return redirect(url_for('index'))
     return render_template('login.html')
 
 @app.route('/admin', methods=['GET', 'POST'])
@@ -69,22 +74,36 @@ def admin():
         return redirect(url_for('index'))
     
     if request.method == 'POST':
-        v = Video(nom=request.form['nom'], img=request.form['img'], lien=request.form['lien'])
-        db.session.add(v)
+        if 'add_video' in request.form:
+            v = Video(nom=request.form['nom'], img=request.form['img'], lien=request.form['lien'])
+            db.session.add(v)
+        elif 'gen_code' in request.form:
+            # Génère un code unique (ex: USER-847)
+            nouveau_code = f"USER-{os.urandom(2).hex().upper()}"
+            u = User(code=nouveau_code, role='user')
+            db.session.add(u)
         db.session.commit()
         return redirect(url_for('admin'))
     
-    tous_les_films = Video.query.all()
-    return render_template('admin.html', films=tous_les_films)
+    films = Video.query.all()
+    users = User.query.filter_by(role='user').all()
+    return render_template('admin.html', films=films, users=users)
 
-@app.route('/supprimer/<int:id>')
+@app.route('/supprimer_video/<int:id>')
 @login_required
-def supprimer(id):
-    if current_user.role != 'admin': 
-        return redirect(url_for('index'))
-    film = Video.query.get(id)
-    if film:
-        db.session.delete(film)
+def supprimer_video(id):
+    if current_user.role == 'admin':
+        v = Video.query.get(id)
+        db.session.delete(v)
+        db.session.commit()
+    return redirect(url_for('admin'))
+
+@app.route('/supprimer_user/<int:id>')
+@login_required
+def supprimer_user(id):
+    if current_user.role == 'admin':
+        u = User.query.get(id)
+        db.session.delete(u)
         db.session.commit()
     return redirect(url_for('admin'))
 
