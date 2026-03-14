@@ -12,7 +12,6 @@ db = SQLAlchemy(app)
 login_manager = LoginManager(app)
 login_manager.login_view = 'login'
 
-# Modèles de données
 class User(UserMixin, db.Model):
     id = db.Column(db.Integer, primary_key=True)
     code = db.Column(db.String(100), unique=True)
@@ -28,7 +27,15 @@ class Video(db.Model):
 def load_user(uid):
     return User.query.get(int(uid))
 
-# --- ROUTES ---
+# --- CRÉATION AUTOMATIQUE DES TABLES ---
+# Cette fonction s'exécute AVANT la première requête pour éviter l'erreur "no such table"
+@app.before_request
+def setup():
+    db.create_all()
+    if not User.query.filter_by(code='ADMIN123').first():
+        admin = User(code='ADMIN123', role='admin')
+        db.session.add(admin)
+        db.session.commit()
 
 @app.route('/')
 @login_required
@@ -40,10 +47,14 @@ def index():
 def login():
     if request.method == 'POST':
         user_code = request.form.get('code')
-        u = User.query.filter_by(code=user_code).first()
-        if u:
-            login_user(u)
-            return redirect(url_for('index'))
+        # On vérifie si la table existe avant de chercher (double sécurité)
+        try:
+            u = User.query.filter_by(code=user_code).first()
+            if u:
+                login_user(u)
+                return redirect(url_for('index'))
+        except:
+            return "Initialisation en cours... rafraîchissez la page."
     return render_template('login.html')
 
 @app.route('/admin', methods=['GET', 'POST'])
@@ -57,19 +68,6 @@ def admin():
         return redirect(url_for('admin'))
     return render_template('admin.html')
 
-# --- LANCEMENT ---
-
 if __name__ == '__main__':
-    with app.app_context():
-        # LE TRUC DU "JSP QUOI" (LE RESET) :
-        db.drop_all() 
-        db.create_all()
-        
-        # On recrée l'admin proprement
-        admin_user = User(code='ADMIN123', role='admin')
-        db.session.add(admin_user)
-        db.session.commit()
-    
-    # Détection du port pour Render
     port = int(os.environ.get("PORT", 10000))
     app.run(host='0.0.0.0', port=port)
