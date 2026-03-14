@@ -37,11 +37,19 @@ def setup():
         db.session.add(admin)
         db.session.commit()
 
-@app.route('/')
+@app.route('/admin', methods=['GET', 'POST'])
 @login_required
-def index():
+def admin():
+    if current_user.role != 'admin': return redirect(url_for('index'))
+    if request.method == 'POST':
+        v = Video(nom=request.form['nom'], img=request.form['img'], lien=request.form['lien'])
+        db.session.add(v)
+        db.session.commit()
+        return redirect(url_for('admin'))
+    
+    # ON AJOUTE CETTE LIGNE POUR VOIR LES FILMS SUR LA PAGE ADMIN
     tous_les_films = Video.query.all()
-    return render_template('index.html', films=tous_les_films)
+    return render_template('admin.html', films=tous_les_films)
 
 @app.route('/login', methods=['GET', 'POST'])
 def login():
