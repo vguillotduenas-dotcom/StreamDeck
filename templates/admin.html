@@ -1,4 +1,71 @@
-<select name="type">
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Admin - Streamdeck</title>
+    <style>
+        body { font-family: sans-serif; background: #f0f0f0; padding: 30px; }
+        .card { background: white; padding: 20px; border-radius: 8px; margin-bottom: 20px; box-shadow: 0 2px 10px rgba(0,0,0,0.1); }
+        input, select { padding: 10px; margin: 5px; width: 200px; }
+        button { padding: 10px 20px; background: #e50914; color: white; border: none; border-radius: 4px; cursor: pointer; }
+        table { width: 100%; border-collapse: collapse; margin-top: 10px; }
+        th, td { border-bottom: 1px solid #ddd; padding: 10px; text-align: left; }
+        .del { color: red; text-decoration: none; font-weight: bold; }
+    </style>
+</head>
+<body>
+    <h1>🔧 Administration</h1>
+    <a href="/">← Retour au site</a>
+
+    <div class="card">
+        <h2>🎥 Ajouter un Film ou une Série</h2>
+        <form method="POST">
+            <input type="hidden" name="add_video">
+            <input type="text" name="nom" placeholder="Titre (ex: Les Simpson)" required>
+            <input type="text" name="img" placeholder="Lien image (Affiche)" required>
+            <input type="text" name="lien" placeholder="Lien Vidéo (Laisser vide si série)">
+            <select name="type">
+                <option value="film">Film</option>
+                <option value="serie">Série</option>
+            </select>
+            <button type="submit">Enregistrer</button>
+        </form>
+    </div>
+
+    <div class="card">
+        <h2>➕ Ajouter un Épisode (Seulement pour les séries)</h2>
+        <form method="POST">
+            <input type="hidden" name="add_episode">
+            <select name="video_id" style="width: 220px;">
+                {% for f in films if f.type == 'serie' %}
+                    <option value="{{ f.id }}">{{ f.nom }}</option>
+                {% endfor %}
+            </select>
+            <input type="text" name="saison" placeholder="Saison 1" required>
+            <input type="text" name="titre" placeholder="Épisode 1" required>
+            <input type="text" name="lien_ep" placeholder="Lien vidéo de l'épisode" required>
+            <button type="submit">Ajouter l'épisode</button>
+        </form>
+    </div>
+
+    <div class="card">
+        <h2>🔑 Gestion des Accès Invités</h2>
+        <form method="POST">
+            <button type="submit" name="gen_code" style="background: #28a745;">Générer un Code Unique</button>
+        </form>
+        <table>
+            <tr><th>Nom</th><th>Prénom</th><th>Code</th><th>Action</th></tr>
+            {% for u in users %}
+            <tr>
+                <td>{{ u.nom or 'N/A' }}</td>
+                <td>{{ u.prenom or 'N/A' }}</td>
+                <td><code>{{ u.code }}</code></td>
+                <td><a href="{{ url_for('del_u', id=u.id) }}" class="del">Bannir</a></td>
+            </tr>
+            {% endfor %}
+        </table>
+    </div>
+</body>
+</html><select name="type">
     <option value="film">Film</option>
     <option value="serie">Série</option>
 </select>
