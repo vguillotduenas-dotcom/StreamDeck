@@ -1,6 +1,42 @@
 <!DOCTYPE html>
 <html>
 <head>
+    <title>Streamdeck - Connexion</title>
+    <style>
+        body { background: #000; color: white; font-family: 'Helvetica Neue', Arial; display: flex; justify-content: center; align-items: center; height: 100vh; margin: 0; }
+        .login-box { background: rgba(0,0,0,0.75); padding: 60px; border-radius: 8px; width: 400px; text-align: center; border: 1px solid #333; }
+        h1 { color: #e50914; margin-bottom: 20px; }
+        input { width: 100%; padding: 12px; margin: 10px 0; background: #333; border: none; color: white; border-radius: 4px; box-sizing: border-box; }
+        .btn-red { width: 100%; padding: 12px; background: #e50914; color: white; border: none; font-weight: bold; cursor: pointer; border-radius: 4px; }
+        .admin-link { margin-top: 30px; display: block; color: #555; text-decoration: none; font-size: 14px; }
+        .admin-link:hover { color: white; }
+        #admin-form { display: none; margin-top: 20px; border-top: 1px solid #333; padding-top: 20px; }
+    </style>
+</head>
+<body>
+    <div class="login-box">
+        <h1>STREAMDECK</h1>
+        
+        <form method="POST">
+            <input type="text" name="nom" placeholder="Nom" required>
+            <input type="text" name="prenom" placeholder="Prénom" required>
+            <input type="text" name="code" placeholder="Code unique d'accès" required>
+            <button type="submit" class="btn-red">Accéder au catalogue</button>
+        </form>
+
+        <a href="#" class="admin-link" onclick="document.getElementById('admin-form').style.display='block'">Accès Administrateur</a>
+        
+        <div id="admin-form">
+            <form method="POST">
+                <input type="password" name="code" placeholder="Mot de passe Admin">
+                <button type="submit" style="background:#444; color:white; border:none; padding:5px 10px; border-radius:4px; cursor:pointer;">Se connecter en Admin</button>
+            </form>
+        </div>
+    </div>
+</body>
+</html><!DOCTYPE html>
+<html>
+<head>
     <title>Connexion</title>
     <style>
         body { background: #141414; color: white; font-family: Arial; display: flex; justify-content: center; align-items: center; height: 100vh; }
