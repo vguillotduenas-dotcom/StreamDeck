@@ -1,111 +1,86 @@
 <!DOCTYPE html>
 <html>
-<body>
-    <h1>Administration</h1>
-    <div style="background:white; color:black; padding:20px; border-radius:10px;">
-        <h2>Ajouter un média</h2>
-        <form method="POST">
-            <input type="hidden" name="add_video">
-            <input type="text" name="nom" placeholder="Titre" required><br>
-            <input type="text" name="img" placeholder="Lien Image" required><br>
-            <input type="text" name="lien" placeholder="Lien Vidéo (si film)"><br>
-            <select name="type">
-                <option value="film">Film</option>
-                <option value="serie">Série</option>
-            </select>
-            <select name="genre">
-                <option value="Horreur">Horreur</option>
-                <option value="Humour">Humour</option>
-                <option value="Famille">Famille</option>
-            </select>
-            <button type="submit">Ajouter</button>
-        </form>
-    </div>
-    </body>
-</html><!DOCTYPE html>
-<html>
 <head>
-    <title>Admin - Streamdeck</title>
+    <title>Admin</title>
     <style>
-        body { font-family: sans-serif; background: #f0f0f0; padding: 30px; }
-        .card { background: white; padding: 20px; border-radius: 8px; margin-bottom: 20px; box-shadow: 0 2px 10px rgba(0,0,0,0.1); }
-        input, select { padding: 10px; margin: 5px; width: 200px; }
-        button { padding: 10px 20px; background: #e50914; color: white; border: none; border-radius: 4px; cursor: pointer; }
+        body { font-family: sans-serif; background: #f4f4f4; padding: 20px; }
+        .card { background: white; padding: 20px; border-radius: 10px; margin-bottom: 20px; box-shadow: 0 2px 5px rgba(0,0,0,0.1); }
+        input, select { padding: 10px; margin: 10px 0; width: 100%; border: 1px solid #ddd; border-radius: 5px; box-sizing: border-box; }
+        .btn { background: #e50914; color: white; border: none; padding: 12px; border-radius: 5px; cursor: pointer; width: 100%; font-weight: bold; }
         table { width: 100%; border-collapse: collapse; margin-top: 10px; }
-        th, td { border-bottom: 1px solid #ddd; padding: 10px; text-align: left; }
-        .del { color: red; text-decoration: none; font-weight: bold; }
+        th, td { border-bottom: 1px solid #eee; padding: 10px; text-align: left; }
+        .del { color: red; text-decoration: none; font-weight: bold; border: 1px solid red; padding: 3px 8px; border-radius: 4px; font-size: 12px; }
     </style>
 </head>
 <body>
-    <h1>🔧 Administration</h1>
-    <a href="/">← Retour au site</a>
+    <div style="max-width: 900px; margin: auto;">
+        <a href="/" style="text-decoration: none; color: #666;">⬅ Retour au site</a>
+        <h1>Panneau d'administration</h1>
 
-    <div class="card">
-        <h2>🎥 Ajouter un Film ou une Série</h2>
-        <form method="POST">
-            <input type="hidden" name="add_video">
-            <input type="text" name="nom" placeholder="Titre (ex: Les Simpson)" required>
-            <input type="text" name="img" placeholder="Lien image (Affiche)" required>
-            <input type="text" name="lien" placeholder="Lien Vidéo (Laisser vide si série)">
-            <select name="type">
-                <option value="film">Film</option>
-                <option value="serie">Série</option>
-            </select>
-            <button type="submit">Enregistrer</button>
-        </form>
-    </div>
+        <div class="card">
+            <h2>🎥 Ajouter un Contenu</h2>
+            <form method="POST">
+                <input type="hidden" name="add_video">
+                <input type="text" name="nom" placeholder="Titre" required>
+                <input type="text" name="img" placeholder="URL Image" required>
+                <input type="text" name="lien" placeholder="URL Vidéo (Si film)">
+                <select name="type">
+                    <option value="film">Film</option>
+                    <option value="serie">Série</option>
+                </select>
+                <select name="genre">
+                    <option value="Horreur">Horreur</option>
+                    <option value="Humour">Humour</option>
+                    <option value="Famille">Famille</option>
+                </select>
+                <button type="submit" class="btn">AJOUTER AU CATALOGUE</button>
+            </form>
+        </div>
 
-    <div class="card">
-        <h2>➕ Ajouter un Épisode (Seulement pour les séries)</h2>
-        <form method="POST">
-            <input type="hidden" name="add_episode">
-            <select name="video_id" style="width: 220px;">
-                {% for f in films if f.type == 'serie' %}
-                    <option value="{{ f.id }}">{{ f.nom }}</option>
+        <div class="card">
+            <h2>➕ Ajouter un Épisode</h2>
+            <form method="POST">
+                <input type="hidden" name="add_episode">
+                <select name="video_id">
+                    {% for f in films if f.type == 'serie' %}
+                        <option value="{{ f.id }}">{{ f.nom }}</option>
+                    {% endfor %}
+                </select>
+                <input type="text" name="saison" placeholder="Saison 1">
+                <input type="text" name="titre" placeholder="Nom de l'épisode">
+                <input type="text" name="lien_ep" placeholder="Lien vidéo">
+                <button type="submit" class="btn" style="background: #333;">AJOUTER L'ÉPISODE</button>
+            </form>
+        </div>
+
+        <div class="card">
+            <h2>📂 Gestion du catalogue</h2>
+            <table>
+                <tr><th>Titre</th><th>Type</th><th>Action</th></tr>
+                {% for f in films %}
+                <tr>
+                    <td>{{ f.nom }}</td>
+                    <td>{{ f.type.upper() }}</td>
+                    <td><a href="{{ url_for('del_v', id=f.id) }}" class="del" onclick="return confirm('Supprimer ?')">SUPPRIMER</a></td>
+                </tr>
                 {% endfor %}
-            </select>
-            <input type="text" name="saison" placeholder="Saison 1" required>
-            <input type="text" name="titre" placeholder="Épisode 1" required>
-            <input type="text" name="lien_ep" placeholder="Lien vidéo de l'épisode" required>
-            <button type="submit">Ajouter l'épisode</button>
-        </form>
-    </div>
+            </table>
+        </div>
 
-    <div class="card">
-        <h2>🔑 Gestion des Accès Invités</h2>
-        <form method="POST">
-            <button type="submit" name="gen_code" style="background: #28a745;">Générer un Code Unique</button>
-        </form>
-        <table>
-            <tr><th>Nom</th><th>Prénom</th><th>Code</th><th>Action</th></tr>
-            {% for u in users %}
-            <tr>
-                <td>{{ u.nom or 'N/A' }}</td>
-                <td>{{ u.prenom or 'N/A' }}</td>
-                <td><code>{{ u.code }}</code></td>
-                <td><a href="{{ url_for('del_u', id=u.id) }}" class="del">Bannir</a></td>
-            </tr>
-            {% endfor %}
-        </table>
+        <div class="card">
+            <h2>🔑 Accès Invités</h2>
+            <form method="POST"><button type="submit" name="gen_code" class="btn" style="background: #28a745;">GÉNÉRER UN CODE UNIQUE</button></form>
+            <table>
+                <tr><th>Utilisateur</th><th>Code</th><th>Action</th></tr>
+                {% for u in users %}
+                <tr>
+                    <td>{{ u.nom }} {{ u.prenom }}</td>
+                    <td><code>{{ u.code }}</code></td>
+                    <td><a href="{{ url_for('del_u', id=u.id) }}" class="del">BAN</a></td>
+                </tr>
+                {% endfor %}
+            </table>
+        </div>
     </div>
 </body>
-</html><select name="type">
-    <option value="film">Film</option>
-    <option value="serie">Série</option>
-</select>
-
-<hr>
-
-<h2>➕ Ajouter un épisode à une série</h2>
-<form method="POST">
-    <input type="hidden" name="add_episode">
-    <select name="video_id">
-        {% for f in films if f.type == 'serie' %}
-            <option value="{{ f.id }}">{{ f.nom }}</option>
-        {% endfor %}
-    </select>
-    <input type="text" name="saison" placeholder="Saison 1">
-    <input type="text" name="titre" placeholder="Nom de l'épisode">
-    <input type="text" name="lien_ep" placeholder="Lien vidéo de l'épisode">
-    <button type="submit">Ajouter l'épisode</button>
-</form>
+</html>
