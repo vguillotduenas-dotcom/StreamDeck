@@ -1,5 +1,29 @@
 <!DOCTYPE html>
 <html>
+<body>
+    <h1>Administration</h1>
+    <div style="background:white; color:black; padding:20px; border-radius:10px;">
+        <h2>Ajouter un média</h2>
+        <form method="POST">
+            <input type="hidden" name="add_video">
+            <input type="text" name="nom" placeholder="Titre" required><br>
+            <input type="text" name="img" placeholder="Lien Image" required><br>
+            <input type="text" name="lien" placeholder="Lien Vidéo (si film)"><br>
+            <select name="type">
+                <option value="film">Film</option>
+                <option value="serie">Série</option>
+            </select>
+            <select name="genre">
+                <option value="Horreur">Horreur</option>
+                <option value="Humour">Humour</option>
+                <option value="Famille">Famille</option>
+            </select>
+            <button type="submit">Ajouter</button>
+        </form>
+    </div>
+    </body>
+</html><!DOCTYPE html>
+<html>
 <head>
     <title>Admin - Streamdeck</title>
     <style>
