@@ -1,6 +1,44 @@
 <!DOCTYPE html>
 <html>
 <head>
+    <title>Streamdeck - Accès Privé</title>
+    <style>
+        body { background: #000; color: white; font-family: Arial; display: flex; justify-content: center; align-items: center; height: 100vh; margin: 0; overflow: hidden; }
+        .side-text { position: absolute; transform: rotate(-90deg); color: #222; font-weight: bold; font-size: 50px; letter-spacing: 10px; z-index: 0; pointer-events: none; }
+        .left { left: -50px; } .right { right: -50px; }
+        .login-box { background: rgba(0,0,0,0.85); padding: 50px; border-radius: 10px; width: 380px; text-align: center; border: 1px solid #333; z-index: 10; }
+        h1 { color: #e50914; font-size: 35px; margin-bottom: 20px; }
+        input { width: 100%; padding: 14px; margin: 10px 0; background: #333; border: none; color: white; border-radius: 4px; box-sizing: border-box; }
+        .btn-red { width: 100%; padding: 14px; background: #e50914; color: white; border: none; font-weight: bold; cursor: pointer; border-radius: 4px; font-size: 16px; }
+        .admin-link { margin-top: 30px; display: block; color: #444; text-decoration: none; font-size: 13px; cursor: pointer; }
+        #admin-form { display: none; margin-top: 20px; border-top: 1px solid #222; padding-top: 20px; }
+    </style>
+</head>
+<body>
+    <div class="side-text left">ACCÈS PRIVÉ</div>
+    <div class="side-text right">ACCÈS PRIVÉ</div>
+
+    <div class="login-box">
+        <h1>STREAMDECK</h1>
+        <form method="POST">
+            <input type="text" name="nom" placeholder="Votre Nom" required>
+            <input type="text" name="prenom" placeholder="Votre Prénom" required>
+            <input type="text" name="code" placeholder="Code d'accès unique" required>
+            <button type="submit" class="btn-red">SE CONNECTER</button>
+        </form>
+
+        <span class="admin-link" onclick="document.getElementById('admin-form').style.display='block'">Accès Administrateur</span>
+        <div id="admin-form">
+            <form method="POST">
+                <input type="password" name="code" placeholder="Mots de passe Admin">
+                <button type="submit" style="background:#222; color:#888; border:1px solid #444; padding:5px; cursor:pointer; width:100%;">Valider</button>
+            </form>
+        </div>
+    </div>
+</body>
+</html><!DOCTYPE html>
+<html>
+<head>
     <title>Streamdeck - Connexion</title>
     <style>
         body { background: #000; color: white; font-family: Arial; display: flex; justify-content: center; align-items: center; height: 100vh; margin: 0; }
