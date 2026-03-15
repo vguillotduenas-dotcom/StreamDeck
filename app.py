@@ -6,27 +6,20 @@ from flask_login import LoginManager, UserMixin, login_user, login_required, cur
 app = Flask(__name__)
 app.config['SECRET_KEY'] = 'cle-secrete-streamdeck-2026'
 
-# --- CONFIGURATION SUPABASE (Lien Pooler Port 6543) ---
-# Ton mot de passe est "Salutlesgens.82"
+# --- CONFIGURATION SUPABASE ---
 password = "Salutlesgens.82"
 encoded_password = urllib.parse.quote_plus(password)
 
-# Utilisation du lien Pooler que tu as trouvé (le plus stable pour Render)
+# Ton lien Pooler Port 6543
 app.config['SQLALCHEMY_DATABASE_URI'] = f'postgresql://postgres.oirzftvubwpoyvvdwuhv:{encoded_password}@aws-1-eu-west-1.pooler.supabase.com:6543/postgres'
-
-# Options de stabilité pour éviter les erreurs de connexion "Network is unreachable"
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
-app.config['SQLALCHEMY_ENGINE_OPTIONS'] = {
-    "pool_pre_ping": True,
-    "pool_recycle": 300,
-}
-# ---------------------------------------------------
+app.config['SQLALCHEMY_ENGINE_OPTIONS'] = {"pool_pre_ping": True}
+# ------------------------------
 
 db = SQLAlchemy(app)
 login_manager = LoginManager(app)
 login_manager.login_view = 'login'
 
-# --- MODÈLES DE DONNÉES ---
 class User(UserMixin, db.Model):
     id = db.Column(db.Integer, primary_key=True)
     nom = db.Column(db.String(100))
@@ -54,14 +47,12 @@ class Episode(db.Model):
 def load_user(uid):
     return User.query.get(int(uid))
 
-# Création automatique des tables sur Supabase
 with app.app_context():
     db.create_all()
     if not User.query.filter_by(role='admin').first():
         db.session.add(User(nom="Admin", prenom="Boss", code='ADMIN123', role='admin'))
         db.session.commit()
 
-# --- ROUTES ---
 @app.route('/')
 @login_required
 def index():
@@ -116,8 +107,7 @@ def del_v(id):
     if current_user.role == 'admin':
         v = Video.query.get(id)
         if v:
-            db.session.delete(v)
-            db.session.commit()
+            db.session.delete(v); db.session.commit()
     return redirect(url_for('admin'))
 
 @app.route('/del_u/<int:id>')
@@ -126,10 +116,8 @@ def del_u(id):
     if current_user.role == 'admin':
         u = User.query.get(id)
         if u:
-            db.session.delete(u)
-            db.session.commit()
+            db.session.delete(u); db.session.commit()
     return redirect(url_for('admin'))
 
 if __name__ == '__main__':
-    port = int(os.environ.get("PORT", 10000))
-    app.run(host='0.0.0.0', port=port)
+    app.run()
