@@ -68,7 +68,8 @@ def login():
         user = User.query.filter_by(code=code_s).first()
         if user:
             if user.role == 'user' and not user.nom:
-                user.nom, user.prenom = request.form.get('nom'), request.form.get('prenom')
+                user.nom = request.form.get('nom')
+                user.prenom = request.form.get('prenom')
                 db.session.commit()
             login_user(user, remember=True)
             return redirect(url_for('index'))
@@ -102,15 +103,22 @@ def serie_details(id):
 @login_required
 def del_v(id):
     if current_user.role == 'admin':
-        db.session.delete(Video.query.get(id)); db.session.commit()
+        v = Video.query.get(id)
+        if v:
+            db.session.delete(v)
+            db.session.commit()
     return redirect(url_for('admin'))
 
 @app.route('/del_u/<int:id>')
 @login_required
 def del_u(id):
     if current_user.role == 'admin':
-        db.session.delete(User.query.get(id)); db.session.commit()
+        u = User.query.get(id)
+        if u:
+            db.session.delete(u)
+            db.session.commit()
     return redirect(url_for('admin'))
 
 if __name__ == '__main__':
-    app.run(host='0.0.0.0', port=int(os.environ.get("PORT", 10000)))
+    port = int(os.environ.get("PORT", 10000))
+    app.run(host='0.0.0.0', port=port)
