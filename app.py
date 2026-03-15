@@ -7,17 +7,14 @@ app = Flask(__name__)
 app.config['SECRET_KEY'] = 'cle-secrete-streamdeck-2026'
 
 # --- CONFIGURATION NEON ---
-# Ton lien Neon tout neuf
 app.config['SQLALCHEMY_DATABASE_URI'] = 'postgresql://neondb_owner:npg_hdJIb9yEqX0W@ep-plain-haze-agfexo8l-pooler.c-2.eu-central-1.aws.neon.tech/neondb?sslmode=require'
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 app.config['SQLALCHEMY_ENGINE_OPTIONS'] = {"pool_pre_ping": True}
-# --------------------------
 
 db = SQLAlchemy(app)
 login_manager = LoginManager(app)
 login_manager.login_view = 'login'
 
-# --- MODÈLES ---
 class User(UserMixin, db.Model):
     id = db.Column(db.Integer, primary_key=True)
     nom = db.Column(db.String(100))
@@ -45,19 +42,16 @@ class Episode(db.Model):
 def load_user(uid):
     return User.query.get(int(uid))
 
-# Création des tables au démarrage
 with app.app_context():
     db.create_all()
     if not User.query.filter_by(role='admin').first():
         db.session.add(User(nom="Admin", prenom="Boss", code='ADMIN123', role='admin'))
         db.session.commit()
 
-# --- ROUTES ---
 @app.route('/')
 @login_required
 def index():
-    q = request.args.get('q')
-    genre_f = request.args.get('genre')
+    q = request.args.get('q'); genre_f = request.args.get('genre')
     query = Video.query
     if q: query = query.filter(Video.nom.ilike(f'%{q}%'))
     if genre_f: query = query.filter(Video.genre == genre_f)
@@ -70,8 +64,7 @@ def login():
         user = User.query.filter_by(code=code_s).first()
         if user:
             if user.role == 'user' and not user.nom:
-                user.nom = request.form.get('nom')
-                user.prenom = request.form.get('prenom')
+                user.nom = request.form.get('nom'); user.prenom = request.form.get('prenom')
                 db.session.commit()
             login_user(user, remember=True)
             return redirect(url_for('index'))
@@ -85,8 +78,7 @@ def admin():
         if 'add_content' in request.form:
             v_type = request.form['type']
             v = Video(nom=request.form['nom'], img=request.form['img'], lien=request.form.get('lien_film'), type=v_type, genre=request.form['genre'])
-            db.session.add(v)
-            db.session.flush()
+            db.session.add(v); db.session.flush()
             if v_type == 'serie':
                 ep = Episode(video_id=v.id, saison=request.form['saison'], titre_ep=request.form['titre_ep'], lien_ep=request.form['lien_ep'])
                 db.session.add(ep)
@@ -106,8 +98,7 @@ def serie_details(id):
 def del_v(id):
     if current_user.role == 'admin':
         v = Video.query.get(id)
-        if v:
-            db.session.delete(v); db.session.commit()
+        if v: db.session.delete(v); db.session.commit()
     return redirect(url_for('admin'))
 
 @app.route('/del_u/<int:id>')
@@ -115,8 +106,7 @@ def del_v(id):
 def del_u(id):
     if current_user.role == 'admin':
         u = User.query.get(id)
-        if u:
-            db.session.delete(u); db.session.commit()
+        if u: db.session.delete(u); db.session.commit()
     return redirect(url_for('admin'))
 
 if __name__ == '__main__':
