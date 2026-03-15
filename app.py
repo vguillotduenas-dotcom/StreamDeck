@@ -19,6 +19,7 @@ login_manager.login_view = 'login'
 class User(UserMixin, db.Model):
     id = db.Column(db.Integer, primary_key=True)
     nom = db.Column(db.String(100))
+    prenom = db.Column(db.String(100)) # Ajouté pour correspondre à ton login
     code = db.Column(db.String(100), unique=True)
     role = db.Column(db.String(20), default='user')
 
@@ -54,18 +55,25 @@ with app.app_context():
 @login_required
 def index():
     q = request.args.get('q')
-    genre_f = request.args.get('genre')
     query = Video.query
     if q: query = query.filter(Video.nom.ilike(f'%{q}%'))
-    if genre_f: query = query.filter(Video.genre == genre_f)
     return render_template('index.html', films=query.all())
 
 @app.route('/login', methods=['GET', 'POST'])
 def login():
     if request.method == 'POST':
         code_s = request.form.get('code', '').strip()
+        nom_s = request.form.get('nom', '')
+        prenom_s = request.form.get('prenom', '')
+        
         user = User.query.filter_by(code=code_s).first()
         if user:
+            # Si c'est sa première connexion (nom vide), on enregistre son nom
+            if not user.nom and nom_s:
+                user.nom = nom_s
+                user.prenom = prenom_s
+                db.session.commit()
+            
             login_user(user, remember=True)
             return redirect(url_for('index'))
     return render_template('login.html')
@@ -78,12 +86,12 @@ def admin():
     
     if request.method == 'POST':
         if 'add_content' in request.form:
-            v_type = request.form.get('type')
             v = Video(nom=request.form.get('nom'), img=request.form.get('img'), 
-                      lien=request.form.get('lien_film'), type=v_type, genre=request.form.get('genre'))
+                      lien=request.form.get('lien_film'), type=request.form.get('type'), 
+                      genre=request.form.get('genre'))
             db.session.add(v)
             db.session.flush()
-            if v_type == 'serie' and request.form.get('saison'):
+            if v.type == 'serie' and request.form.get('saison'):
                 ep = Episode(video_id=v.id, saison=request.form.get('saison'), 
                              titre_ep=request.form.get('titre_ep'), lien_ep=request.form.get('lien_ep'))
                 db.session.add(ep)
@@ -96,7 +104,6 @@ def admin():
         db.session.commit()
         return redirect(url_for('admin'))
     
-    # Envoi des bonnes variables au HTML
     return render_template('admin.html', films=Video.query.all(), users=User.query.filter_by(role='user').all())
 
 @app.route('/del_v/<int:id>')
