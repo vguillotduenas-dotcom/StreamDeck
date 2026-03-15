@@ -5,28 +5,63 @@
     <title>{{ serie.nom }} - StreamDeck</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
     <style>
-        body { background: radial-gradient(circle at center, #300000 0%, #000000 100%); color: white; min-height: 100vh; }
-        .list-group-item { background: #111; border: 1px solid #ff0000; color: white; margin-bottom: 10px; border-radius: 5px !important; }
-        .btn-danger { background: #ff0000; border: none; }
+        body { 
+            background: radial-gradient(circle at center, #300000 0%, #000000 100%); 
+            color: white; 
+            min-height: 100vh; 
+            font-family: sans-serif;
+        }
+        .serie-header {
+            padding: 40px 0;
+            text-align: center;
+        }
+        .episode-card {
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid #ff0000;
+            border-radius: 10px;
+            margin-bottom: 10px;
+            padding: 15px;
+            transition: 0.3s;
+        }
+        .episode-card:hover {
+            background: rgba(255, 0, 0, 0.1);
+            box-shadow: 0 0 10px rgba(255, 0, 0, 0.3);
+        }
+        .btn-danger { background: #ff0000; border: none; font-weight: bold; }
+        .text-danger { color: #ff0000 !important; }
     </style>
 </head>
 <body>
-    <div class="container mt-5 text-center">
-        <h1 class="text-danger fw-bold">{{ serie.nom }}</h1>
-        <img src="{{ serie.img }}" style="width: 200px; border-radius: 10px; border: 2px solid #ff0000;" class="mb-4">
-        
-        <div class="text-start mx-auto" style="max-width: 600px;">
-            <h3 class="mb-3">Épisodes :</h3>
-            <div class="list-group">
-                {% for ep in serie.episodes %}
-                <div class="list-group-item d-flex justify-content-between align-items-center">
-                    <span><strong>{{ ep.saison }}</strong> : {{ ep.titre_ep }}</span>
-                    <a href="{{ ep.lien_ep }}" class="btn btn-sm btn-danger" target="_blank">Lire</a>
+    <div class="container">
+        <div class="serie-header">
+            <h1 class="display-4 fw-bold text-danger text-uppercase">{{ serie.nom }}</h1>
+            <img src="{{ serie.img }}" style="width: 250px; border-radius: 15px; border: 3px solid #ff0000; box-shadow: 0 0 20px rgba(255,0,0,0.4);" class="my-4">
+            <p class="lead">Genre : <span class="badge bg-danger">{{ serie.genre }}</span></p>
+        </div>
+
+        <div class="row justify-content-center">
+            <div class="col-md-8">
+                <h3 class="mb-4 border-bottom border-danger pb-2">LISTE DES ÉPISODES</h3>
+                
+                {% if serie.episodes %}
+                    {% for ep in serie.episodes %}
+                    <div class="episode-card d-flex justify-content-between align-items-center">
+                        <div>
+                            <span class="text-danger fw-bold me-2">{{ ep.saison }}</span>
+                            <span>{{ ep.titre_ep }}</span>
+                        </div>
+                        <a href="{{ ep.lien_ep }}" class="btn btn-danger" target="_blank">LIRE L'ÉPISODE</a>
+                    </div>
+                    {% endfor %}
+                {% else %}
+                    <p class="text-center text-muted">Aucun épisode disponible pour le moment.</p>
+                {% endif %}
+                
+                <div class="text-center mt-5">
+                    <a href="/" class="btn btn-outline-danger btn-lg">RETOUR À L'ACCUEIL</a>
                 </div>
-                {% endfor %}
             </div>
         </div>
-        <a href="/" class="btn btn-outline-danger mt-4">Retour à l'accueil</a>
     </div>
 </body>
 </html>
