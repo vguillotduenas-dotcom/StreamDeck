@@ -2,95 +2,70 @@
 <html lang="fr">
 <head>
     <meta charset="UTF-8">
-    <title>StreamDeck - Films & Séries</title>
+    <title>StreamDeck - Cinéma</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
     <style>
         body {
-            background: radial-gradient(circle at center, #2c0b0b 0%, #000000 100%);
-            color: white;
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: radial-gradient(circle at center, #300000 0%, #000000 100%);
+            color: #ffffff;
+            font-family: 'Segoe UI', sans-serif;
             min-height: 100vh;
         }
         .navbar {
-            background-color: rgba(0, 0, 0, 0.9) !important;
-            border-bottom: 1px solid #ff0000;
-        }
-        .navbar-brand, .nav-link {
-            color: #ff0000 !important;
+            background-color: rgba(0,0,0,0.9) !important;
+            border-bottom: 2px solid #ff0000;
+            box-shadow: 0 0 15px rgba(255,0,0,0.3);
         }
         .card {
-            background-color: #1a1a1a;
+            background: #111;
             border: 1px solid #333;
-            transition: transform 0.3s ease, box-shadow 0.3s ease;
-            overflow: hidden;
+            transition: 0.3s;
+            border-radius: 10px;
         }
         .card:hover {
-            transform: scale(1.05);
+            transform: translateY(-10px);
             border-color: #ff0000;
-            box-shadow: 0 0 15px rgba(255, 0, 0, 0.7);
+            box-shadow: 0 0 20px rgba(255,0,0,0.5);
         }
-        .card-img-top {
-            height: 350px;
-            object-fit: cover;
-        }
-        .card-title {
-            color: white;
-        }
-        .btn-outline-danger {
-            color: #ff0000;
-            border-color: #ff0000;
-        }
-        .btn-outline-danger:hover {
-            background-color: #ff0000;
-            color: white;
-        }
-        .form-control {
-            background-color: rgba(255, 255, 255, 0.1);
-            color: white;
-            border: 1px solid #444;
-        }
-        .form-control:focus {
-            background-color: rgba(255, 255, 255, 0.2);
-            color: white;
-            border-color: #ff0000;
-            box-shadow: 0 0 10px rgba(255, 0, 0, 0.5);
-        }
+        .btn-danger { background-color: #ff0000; border: none; }
+        .btn-outline-danger { color: #ff0000; border-color: #ff0000; }
+        .btn-outline-danger:hover { background: #ff0000; color: white; }
     </style>
 </head>
 <body>
-    <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
+    <nav class="navbar navbar-expand-lg navbar-dark mb-4">
         <div class="container">
-            <a class="navbar-brand" href="/">StreamDeck</a>
+            <a class="navbar-brand fw-bold" href="/" style="color:#ff0000;">STREAMDECK</a>
             <form class="d-flex" method="GET">
-                <input class="form-control me-2" type="search" name="q" placeholder="Rechercher..." aria-label="Search">
-                <button class="btn btn-outline-danger" type="submit">OK</button>
+                <input class="form-control me-2 bg-dark text-white border-secondary" type="search" name="q" placeholder="Rechercher...">
+                <button class="btn btn-outline-danger" type="submit">Rechercher</button>
             </form>
             {% if current_user.role == 'admin' %}
-                <a href="/admin" class="btn btn-danger ms-2">Admin</a>
+                <a href="/admin" class="btn btn-danger ms-3">ADMIN</a>
             {% endif %}
         </div>
     </nav>
 
-    <div class="container mt-4">
-        <div class="mb-4 text-center">
-            <a href="/" class="btn btn-outline-danger me-2">Tous</a>
-            <a href="/?genre=Action" class="btn btn-outline-danger me-2">Action</a>
-            <a href="/?genre=Comédie" class="btn btn-outline-danger me-2">Comédie</a>
-            <a href="/?genre=Drame" class="btn btn-outline-danger me-2">Drame</a>
+    <div class="container">
+        <div class="mb-5 text-center">
+            <a href="/" class="btn btn-outline-danger m-1">Tous</a>
+            <a href="/?genre=Action" class="btn btn-outline-danger m-1">Action</a>
+            <a href="/?genre=Horreur" class="btn btn-outline-danger m-1">Horreur</a>
+            <a href="/?genre=Série" class="btn btn-outline-danger m-1">Séries</a>
         </div>
 
         <div class="row row-cols-1 row-cols-md-3 row-cols-lg-4 g-4">
             {% for f in films %}
             <div class="col">
                 <div class="card h-100">
-                    <img src="{{ f.img }}" class="card-img-top" alt="{{ f.nom }}">
+                    <img src="{{ f.img }}" class="card-img-top" style="height: 300px; object-fit: cover; border-radius: 10px 10px 0 0;">
                     <div class="card-body">
-                        <h5 class="card-title">{{ f.nom }}</h5>
-                        <p class="card-text text-muted">{{ f.genre }}</p>
+                        <h5 class="card-title fw-bold">{{ f.nom }}</h5>
+                        <p class="badge bg-danger">{{ f.genre }}</p>
                         {% if f.type == 'film' %}
-                            <a href="{{ f.lien }}" class="btn btn-danger w-100" target="_blank">Regarder</a>
+                            <a href="{{ f.lien }}" class="btn btn-danger w-100 mt-2" target="_blank">Regarder</a>
                         {% else %}
-                            <a href="/serie/{{ f.id }}" class="btn btn-danger w-100">Voir les épisodes</a>
+                            <a href="/serie/{{ f.id }}" class="btn btn-danger w-100 mt-2">Épisodes</a>
                         {% endif %}
                     </div>
                 </div>
