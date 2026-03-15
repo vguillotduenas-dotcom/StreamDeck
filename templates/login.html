@@ -1,33 +1,71 @@
 <!DOCTYPE html>
-<html>
+<html lang="fr">
 <head>
-    <title>Streamdeck - Connexion</title>
+    <meta charset="UTF-8">
+    <title>StreamDeck - Connexion</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
     <style>
-        body { background: #000; color: white; font-family: Arial; display: flex; justify-content: center; align-items: center; height: 100vh; margin: 0; }
-        .box { background: rgba(20,20,20,0.9); padding: 40px; border-radius: 10px; width: 350px; text-align: center; border: 1px solid #333; }
-        h1 { color: #e50914; font-size: 30px; margin-bottom: 20px; }
-        input { width: 100%; padding: 12px; margin: 10px 0; background: #333; border: none; color: white; border-radius: 4px; box-sizing: border-box; }
-        .btn { width: 100%; padding: 12px; background: #e50914; color: white; border: none; font-weight: bold; cursor: pointer; border-radius: 4px; }
-        .admin-link { margin-top: 25px; display: block; color: #444; text-decoration: none; font-size: 12px; cursor: pointer; }
-        #admin-form { display: none; margin-top: 15px; border-top: 1px solid #222; padding-top: 15px; }
+        body {
+            background: radial-gradient(circle at center, #2c0b0b 0%, #000000 100%);
+            color: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            height: 100vh;
+            margin: 0;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        .login-card {
+            background: rgba(20, 20, 20, 0.8);
+            border: 1px solid #ff0000;
+            border-radius: 15px;
+            padding: 30px;
+            box-shadow: 0 0 20px rgba(255, 0, 0, 0.2);
+            backdrop-filter: blur(5px);
+            width: 100%;
+            max-width: 400px;
+        }
+        .btn-danger {
+            background-color: #ff0000;
+            border: none;
+        }
+        .btn-danger:hover {
+            background-color: #cc0000;
+        }
+        .form-control {
+            background-color: rgba(0, 0, 0, 0.5);
+            color: white;
+            border: 1px solid #444;
+        }
+        .form-control:focus {
+            background-color: rgba(0, 0, 0, 0.7);
+            color: white;
+            border-color: #ff0000;
+            box-shadow: 0 0 10px rgba(255, 0, 0, 0.5);
+        }
     </style>
 </head>
 <body>
-    <div class="box">
-        <h1>STREAMDECK</h1>
+    <div class="login-card text-center">
+        <h1 class="mb-4" style="color: #ff0000; text-shadow: 0 0 10px rgba(255, 0, 0, 0.5);">StreamDeck</h1>
         <form method="POST">
-            <input type="text" name="nom" placeholder="Ton Nom" required>
-            <input type="text" name="prenom" placeholder="Ton Prénom" required>
-            <input type="text" name="code" placeholder="Code d'accès unique" required>
-            <button type="submit" class="btn">ACCÉDER AU CATALOGUE</button>
+            <input type="text" name="code" class="form-control mb-3" placeholder="Ton code d'accès" required>
+            <div id="userInfo" style="display:none;">
+                <input type="text" name="nom" class="form-control mb-3" placeholder="Nom">
+                <input type="text" name="prenom" class="form-control mb-3" placeholder="Prénom">
+            </div>
+            <button type="submit" class="btn btn-danger w-100">C'est parti !</button>
         </form>
-        <span class="admin-link" onclick="document.getElementById('admin-form').style.display='block'">Accès Administrateur</span>
-        <div id="admin-form">
-            <form method="POST">
-                <input type="password" name="code" placeholder="Mots de passe Admin">
-                <button type="submit" style="background:#222; color:#888; border:none; padding:5px; cursor:pointer; width:100%;">Valider</button>
-            </form>
-        </div>
     </div>
+    <script>
+        const codeInput = document.querySelector('input[name="code"]');
+        codeInput.addEventListener('input', function() {
+            if (this.value.length === 8 && this.value !== 'ADMIN123') {
+                document.getElementById('userInfo').style.display = 'block';
+            } else {
+                document.getElementById('userInfo').style.display = 'none';
+            }
+        });
+    </script>
 </body>
 </html>
