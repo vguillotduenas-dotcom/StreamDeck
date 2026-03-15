@@ -6,18 +6,27 @@ from flask_login import LoginManager, UserMixin, login_user, login_required, cur
 app = Flask(__name__)
 app.config['SECRET_KEY'] = 'cle-secrete-streamdeck-2026'
 
-# --- CONFIGURATION SUPABASE SÉCURISÉE ---
+# --- CONFIGURATION SUPABASE (Lien Pooler Port 6543) ---
+# Ton mot de passe est "Salutlesgens.82"
 password = "Salutlesgens.82"
 encoded_password = urllib.parse.quote_plus(password)
-app.config['SQLALCHEMY_DATABASE_URI'] = f'postgresql://postgres:{encoded_password}@db.oirzftvubwpoyvvdwuhv.supabase.co:5432/postgres'
-# ----------------------------------------
 
+# Utilisation du lien Pooler que tu as trouvé (le plus stable pour Render)
+app.config['SQLALCHEMY_DATABASE_URI'] = f'postgresql://postgres.oirzftvubwpoyvvdwuhv:{encoded_password}@aws-1-eu-west-1.pooler.supabase.com:6543/postgres'
+
+# Options de stabilité pour éviter les erreurs de connexion "Network is unreachable"
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
+app.config['SQLALCHEMY_ENGINE_OPTIONS'] = {
+    "pool_pre_ping": True,
+    "pool_recycle": 300,
+}
+# ---------------------------------------------------
 
 db = SQLAlchemy(app)
 login_manager = LoginManager(app)
 login_manager.login_view = 'login'
 
+# --- MODÈLES DE DONNÉES ---
 class User(UserMixin, db.Model):
     id = db.Column(db.Integer, primary_key=True)
     nom = db.Column(db.String(100))
@@ -45,12 +54,14 @@ class Episode(db.Model):
 def load_user(uid):
     return User.query.get(int(uid))
 
+# Création automatique des tables sur Supabase
 with app.app_context():
     db.create_all()
     if not User.query.filter_by(role='admin').first():
         db.session.add(User(nom="Admin", prenom="Boss", code='ADMIN123', role='admin'))
         db.session.commit()
 
+# --- ROUTES ---
 @app.route('/')
 @login_required
 def index():
