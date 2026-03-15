@@ -151,6 +151,6 @@ def del_u(id):
     return redirect(url_for('admin'))
 
 if __name__ == '__main__':
-    # Configuration du port pour Render
+    # On force l'écoute sur 0.0.0.0 et on récupère le port de Render
     port = int(os.environ.get("PORT", 10000))
-    app.run(host='0.0.0.0', port=port)
+    app.run(host='0.0.0.0', port=port, debug=False)
