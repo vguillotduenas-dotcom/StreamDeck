@@ -63,14 +63,8 @@ def index():
 def login():
     if request.method == 'POST':
         code_s = request.form.get('code', '').strip()
-        nom_s = request.form.get('nom', '')
-        prenom_s = request.form.get('prenom', '')
         user = User.query.filter_by(code=code_s).first()
         if user:
-            if not user.nom and nom_s: # Enregistre l'utilisateur à sa première connexion
-                user.nom = nom_s
-                user.prenom = prenom_s
-                db.session.commit()
             login_user(user, remember=True)
             return redirect(url_for('index'))
     return render_template('login.html')
@@ -79,30 +73,56 @@ def login():
 @login_required
 def admin():
     if current_user.role != 'admin': return redirect(url_for('index'))
+    
     if request.method == 'POST':
-        if 'add_content' in request.form:
-            v = Video(nom=request.form.get('nom'), img=request.form.get('img'), 
-                      lien=request.form.get('lien_film'), type=request.form.get('type'), genre=request.form.get('genre'))
+        print(f"Formulaire reçu : {request.form}") # Debugging
+        
+        # ACTION 1 : AJOUTER UN FILM OU UNE SERIE
+        if 'btn_add_content' in request.form:
+            v = Video(
+                nom=request.form.get('nom'), 
+                img=request.form.get('img'), 
+                lien=request.form.get('lien_film'), 
+                type=request.form.get('type'), 
+                genre=request.form.get('genre')
+            )
             db.session.add(v)
             db.session.flush()
             if v.type == 'serie' and request.form.get('saison'):
                 ep = Episode(video_id=v.id, saison=request.form.get('saison'), titre_ep=request.form.get('titre_ep'), lien_ep=request.form.get('lien_ep'))
                 db.session.add(ep)
-        elif 'add_episode' in request.form:
-            ep = Episode(video_id=request.form.get('video_id'), saison=request.form.get('saison'), titre_ep=request.form.get('titre_ep'), lien_ep=request.form.get('lien_ep'))
+            db.session.commit()
+
+        # ACTION 2 : AJOUTER UN EPISODE A UNE SERIE EXISTANTE
+        elif 'btn_add_episode' in request.form:
+            ep = Episode(
+                video_id=request.form.get('video_id'), 
+                saison=request.form.get('saison'), 
+                titre_ep=request.form.get('titre_ep'), 
+                lien_ep=request.form.get('lien_ep')
+            )
             db.session.add(ep)
-        elif 'gen_code' in request.form:
-            db.session.add(User(code=str(uuid.uuid4())[:8].upper()))
-        db.session.commit()
+            db.session.commit()
+
+        # ACTION 3 : GENERER UN CODE
+        elif 'btn_gen_code' in request.form:
+            new_code = str(uuid.uuid4())[:8].upper()
+            db.session.add(User(code=new_code, role='user'))
+            db.session.commit()
+
         return redirect(url_for('admin'))
+
     return render_template('admin.html', films=Video.query.all(), users=User.query.filter_by(role='user').all())
 
+# --- SUPPRESSIONS ---
 @app.route('/del_v/<int:id>')
 @login_required
 def del_v(id):
     if current_user.role == 'admin':
         v = Video.query.get(id)
-        db.session.delete(v); db.session.commit()
+        if v:
+            db.session.delete(v)
+            db.session.commit()
     return redirect(url_for('admin'))
 
 @app.route('/del_u/<int:id>')
@@ -110,7 +130,9 @@ def del_v(id):
 def del_u(id):
     if current_user.role == 'admin':
         u = User.query.get(id)
-        db.session.delete(u); db.session.commit()
+        if u:
+            db.session.delete(u)
+            db.session.commit()
     return redirect(url_for('admin'))
 
 @app.route('/serie/<int:id>')
