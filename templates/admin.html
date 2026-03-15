@@ -1,90 +1,47 @@
-<!DOCTYPE html>
-<html lang="fr">
-<head>
-    <meta charset="UTF-8">
-    <title>StreamDeck - Admin</title>
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
-    <style>
-        body { background: radial-gradient(circle at center, #300000 0%, #000000 100%); color: #fff; min-height: 100vh; font-family: 'Segoe UI', sans-serif; }
-        .navbar { background: rgba(0,0,0,0.9); border-bottom: 2px solid #ff0000; }
-        .admin-box { background: rgba(0, 0, 0, 0.8); border: 1px solid #ff0000; border-radius: 15px; padding: 20px; margin-bottom: 20px; box-shadow: 0 0 15px rgba(255, 0, 0, 0.2); }
-        .form-control, .form-select { background: #111; border: 1px solid #444; color: white; margin-bottom: 10px; }
-        .btn-danger { background-color: #ff0000; border: none; font-weight: bold; }
-        h2 { color: #ff0000; text-transform: uppercase; font-weight: bold; }
-    </style>
-</head>
-<body>
-    <nav class="navbar navbar-expand-lg navbar-dark mb-4">
-        <div class="container">
-            <a class="navbar-brand text-danger fw-bold" href="/">STREAMDECK ADMIN</a>
-            <div class="d-flex gap-2">
-                <a href="https://discord.gg/yGwPtXKEu" class="btn btn-primary"><i class="fab fa-discord"></i> Discord</a>
-                <a href="/" class="btn btn-outline-danger">Retour Site</a>
-            </div>
-        </div>
-    </nav>
+<div class="col-md-7">
+    <div class="admin-box">
+        <h4><i class="fas fa-film me-2"></i>Catalogue & Épisodes</h4>
+        <div style="max-height: 700px; overflow-y: auto;">
+            {% for f in films %}
+            <div class="p-3 mb-3 border-bottom border-secondary">
+                <div class="d-flex justify-content-between align-items-center">
+                    <span class="fw-bold">{{ f.nom }} <span class="badge bg-secondary ms-2">{{ f.type }}</span></span>
+                    <a href="/del_v/{{ f.id }}" class="text-danger" onclick="return confirm('Supprimer ce contenu ?')"><i class="fas fa-trash"></i></a>
+                </div>
 
-    <div class="container">
-        <div class="row">
-            <div class="col-md-5">
-                <div class="admin-box">
-                    <h2>Ajouter Contenu</h2>
-                    <form method="POST">
-                        <input type="hidden" name="add_content" value="1">
-                        <input type="text" name="nom" class="form-control" placeholder="Titre" required>
-                        <input type="text" name="img" class="form-control" placeholder="URL Image" required>
-                        <select name="type" id="typeSelect" class="form-select">
-                            <option value="film">Film</option>
-                            <option value="serie">Série</option>
-                        </select>
-                        <div id="sectionFilm"><input type="text" name="lien_film" class="form-control" placeholder="Lien Vidéo"></div>
-                        <div id="sectionSerie" style="display:none;">
-                            <input type="text" name="saison" class="form-control" placeholder="Saison 1">
-                            <input type="text" name="titre_ep" class="form-control" placeholder="Titre Épisode">
-                            <input type="text" name="lien_ep" class="form-control" placeholder="Lien Épisode">
+                {% if f.type == 'serie' %}
+                <form method="POST" class="mt-3 p-2 bg-dark rounded border border-secondary shadow-sm">
+                    <input type="hidden" name="add_episode" value="1">
+                    <input type="hidden" name="video_id" value="{{ f.id }}">
+                    
+                    <div class="row g-2">
+                        <div class="col-4">
+                            <input type="text" name="saison" class="form-control form-control-sm" placeholder="Saison (ex: 1)" required>
                         </div>
-                        <button type="submit" class="btn btn-danger w-100">Enregistrer</button>
-                    </form>
-                </div>
-
-                <div class="admin-box">
-                    <h2>Codes d'accès</h2>
-                    <form method="POST"><input type="hidden" name="gen_code" value="1"><button type="submit" class="btn btn-danger w-100 mb-3">Générer Code</button></form>
-                    <table class="table table-dark table-sm">
-                        <thead><tr><th>Code</th><th>Utilisateur</th><th>Action</th></tr></thead>
-                        <tbody>
-                            {% for u in users %}
-                            <tr>
-                                <td class="text-danger fw-bold">{{ u.code }}</td>
-                                <td>{{ u.nom or 'Libre' }}</td>
-                                <td><a href="/del_u/{{ u.id }}" class="text-white"><i class="fas fa-trash"></i></a></td>
-                            </tr>
-                            {% endfor %}
-                        </tbody>
-                    </table>
-                </div>
-            </div>
-
-            <div class="col-md-7">
-                <div class="admin-box">
-                    <h2>Liste des contenus</h2>
-                    {% for f in films %}
-                    <div class="border-bottom border-secondary mb-3 pb-2 d-flex justify-content-between">
-                        <span>{{ f.nom }} ({{ f.type }})</span>
-                        <a href="/del_v/{{ f.id }}" class="text-danger"><i class="fas fa-trash"></i></a>
+                        <div class="col-8">
+                            <input type="text" name="titre_ep" class="form-control form-control-sm" placeholder="Titre de l'épisode" required>
+                        </div>
+                        <div class="col-12 mt-1">
+                            <input type="text" name="lien_ep" class="form-control form-control-sm" placeholder="Lien du lecteur (embed)" required>
+                        </div>
+                        <div class="col-12 mt-2">
+                            <button type="submit" name="add_episode_btn" class="btn btn-sm btn-danger w-100">
+                                <i class="fas fa-plus"></i> Ajouter cet épisode
+                            </button>
+                        </div>
                     </div>
-                    {% endfor %}
+                </form>
+
+                <div class="mt-2 small text-muted">
+                    {% if f.episodes %}
+                        <i class="fas fa-list-ol me-1"></i> {{ f.episodes|length }} épisode(s) enregistré(s)
+                    {% else %}
+                        <i class="fas fa-exclamation-triangle me-1"></i> Aucun épisode
+                    {% endif %}
                 </div>
+                {% endif %}
             </div>
+            {% endfor %}
         </div>
     </div>
-
-    <script>
-        document.getElementById('typeSelect').addEventListener('change', function() {
-            document.getElementById('sectionFilm').style.display = (this.value === 'film') ? 'block' : 'none';
-            document.getElementById('sectionSerie').style.display = (this.value === 'serie') ? 'block' : 'none';
-        });
-    </script>
-</body>
-</html>
+</div>
