@@ -10,6 +10,9 @@ app.config['SECRET_KEY'] = 'cle-secrete-streamdeck-2026'
 password = "Salutlesgens.82"
 encoded_password = urllib.parse.quote_plus(password)
 
+# Note le changement ici : on utilise l'identifiant complet avant les deux points
+app.config['SQLALCHEMY_DATABASE_URI'] = f'postgresql://postgres.oirzftvubwpoyvvdwuhv:{encoded_password}@aws-1-eu-west-1.pooler.supabase.com:6543/postgres'
+
 # Ton lien Pooler Port 6543
 app.config['SQLALCHEMY_DATABASE_URI'] = f'postgresql://postgres.oirzftvubwpoyvvdwuhv:{encoded_password}@aws-1-eu-west-1.pooler.supabase.com:6543/postgres'
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
