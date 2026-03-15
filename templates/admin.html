@@ -9,11 +9,13 @@
         body { background: radial-gradient(circle at center, #300000 0%, #000000 100%); color: #fff; min-height: 100vh; font-family: 'Segoe UI', sans-serif; }
         .navbar { background: rgba(0,0,0,0.9); border-bottom: 2px solid #ff0000; }
         .admin-box { background: rgba(0, 0, 0, 0.8); border: 1px solid #ff0000; border-radius: 15px; padding: 20px; margin-bottom: 20px; box-shadow: 0 0 15px rgba(255, 0, 0, 0.2); }
-        .form-control, .form-select { background: #111; border: 1px solid #444; color: white; margin-bottom: 10px; }
-        .form-control:focus { background: #222; color: white; border-color: #ff0000; box-shadow: 0 0 10px rgba(255, 0, 0, 0.5); }
+        .form-control, .form-select { background: #111 !important; border: 1px solid #444 !important; color: white !important; margin-bottom: 10px; }
+        .form-control:focus { border-color: #ff0000 !important; box-shadow: 0 0 10px rgba(255, 0, 0, 0.5) !important; }
         .btn-danger { background-color: #ff0000; border: none; font-weight: bold; }
-        h4 { color: #ff0000; text-transform: uppercase; font-weight: bold; margin-bottom: 20px; }
+        .btn-danger:hover { background-color: #cc0000; }
+        h4 { color: #ff0000; text-transform: uppercase; font-weight: bold; margin-bottom: 20px; border-bottom: 1px solid #ff0000; padding-bottom: 10px; }
         .list-container { max-height: 600px; overflow-y: auto; padding-right: 5px; }
+        .ep-form { background: rgba(255, 255, 255, 0.05); padding: 10px; border-radius: 8px; border: 1px solid #333; }
     </style>
 </head>
 <body>
@@ -21,49 +23,5 @@
         <div class="container">
             <a class="navbar-brand text-danger fw-bold fs-3" href="/">STREAMDECK <span class="text-white small">ADMIN</span></a>
             <div class="d-flex gap-2">
-                <a href="https://discord.gg/yGwPtXKEu" target="_blank" class="btn btn-sm btn-primary"><i class="fab fa-discord"></i> Discord</a>
                 <a href="/" class="btn btn-sm btn-outline-danger">Retour au site</a>
             </div>
-        </div>
-    </nav>
-
-    <div class="container">
-        <div class="row">
-            <div class="col-md-5">
-                <div class="admin-box">
-                    <h4><i class="fas fa-plus-circle me-2"></i>Ajouter</h4>
-                    <form method="POST">
-                        <input type="hidden" name="add_content" value="1">
-                        <input type="text" name="nom" class="form-control" placeholder="Titre" required>
-                        <input type="text" name="img" class="form-control" placeholder="URL Image" required>
-                        <div class="row g-2">
-                            <div class="col-6">
-                                <select name="genre" class="form-select">
-                                    <option>Action</option><option>Horreur</option><option>Anime</option><option>Série</option>
-                                </select>
-                            </div>
-                            <div class="col-6">
-                                <select name="type" id="typeSelect" class="form-select">
-                                    <option value="film">Film</option>
-                                    <option value="serie">Série</option>
-                                </select>
-                            </div>
-                        </div>
-                        <div id="sectionFilm"><input type="text" name="lien_film" class="form-control" placeholder="Lien Vidéo"></div>
-                        <div id="sectionSerie" style="display:none;" class="p-2 border border-danger rounded mb-2 small text-danger">
-                            Premier Épisode :
-                            <input type="text" name="saison" class="form-control form-control-sm" placeholder="Saison 1">
-                            <input type="text" name="titre_ep" class="form-control form-control-sm" placeholder="Titre Ep">
-                            <input type="text" name="lien_ep" class="form-control form-control-sm" placeholder="Lien Ep">
-                        </div>
-                        <button type="submit" class="btn btn-danger w-100">Enregistrer</button>
-                    </form>
-                </div>
-
-                <div class="admin-box">
-                    <h4><i class="fas fa-key me-2"></i>Codes</h4>
-                    <form method="POST">
-                        <input type="hidden" name="gen_code" value="1">
-                        <button type="submit" class="btn btn-danger w-100 mb-3">Générer un code</button>
-                    </form>
-                    <div style="max-height: 200px;
