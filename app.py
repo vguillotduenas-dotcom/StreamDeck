@@ -7,7 +7,6 @@ app = Flask(__name__)
 app.config['SECRET_KEY'] = 'cle-secrete-2026'
 
 # --- CONNEXION NEON ---
-# On s'assure que l'URL commence bien par postgresql://
 db_url = 'postgresql://neondb_owner:npg_hdJIb9yEqX0W@ep-plain-haze-agfexo8l-pooler.c-2.eu-central-1.aws.neon.tech/neondb?sslmode=require'
 app.config['SQLALCHEMY_DATABASE_URI'] = db_url
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
@@ -43,7 +42,6 @@ class Episode(db.Model):
 def load_user(uid):
     return User.query.get(int(uid))
 
-# Initialisation
 with app.app_context():
     db.create_all()
     if not User.query.filter_by(role='admin').first():
@@ -75,20 +73,58 @@ def login():
 @app.route('/admin', methods=['GET', 'POST'])
 @login_required
 def admin():
-    if current_user.role != 'admin': return redirect(url_for('index'))
+    if current_user.role != 'admin': 
+        return redirect(url_for('index'))
+    
     if request.method == 'POST':
         if 'add_content' in request.form:
             v_type = request.form.get('type')
-            v = Video(nom=request.form.get('nom'), img=request.form.get('img'), lien=request.form.get('lien_film'), type=v_type, genre=request.form.get('genre'))
+            v = Video(nom=request.form.get('nom'), img=request.form.get('img'), 
+                      lien=request.form.get('lien_film'), type=v_type, genre=request.form.get('genre'))
             db.session.add(v)
             db.session.flush()
             if v_type == 'serie' and request.form.get('saison'):
-                ep = Episode(video_id=v.id, saison=request.form.get('saison'), titre_ep=request.form.get('titre_ep'), lien_ep=request.form.get('lien_ep'))
+                ep = Episode(video_id=v.id, saison=request.form.get('saison'), 
+                             titre_ep=request.form.get('titre_ep'), lien_ep=request.form.get('lien_ep'))
                 db.session.add(ep)
         elif 'add_episode' in request.form:
-            ep = Episode(video_id=request.form.get('video_id'), saison=request.form.get('saison'), titre_ep=request.form.get('titre_ep'), lien_ep=request.form.get('lien_ep'))
+            ep = Episode(video_id=request.form.get('video_id'), saison=request.form.get('saison'), 
+                         titre_ep=request.form.get('titre_ep'), lien_ep=request.form.get('lien_ep'))
             db.session.add(ep)
         elif 'gen_code' in request.form:
             db.session.add(User(code=str(uuid.uuid4())[:8].upper()))
         db.session.commit()
-        return
+        return redirect(url_for('admin'))
+    
+    # Envoi des bonnes variables au HTML
+    return render_template('admin.html', films=Video.query.all(), users=User.query.filter_by(role='user').all())
+
+@app.route('/del_v/<int:id>')
+@login_required
+def del_v(id):
+    if current_user.role == 'admin':
+        v = Video.query.get(id)
+        if v:
+            db.session.delete(v)
+            db.session.commit()
+    return redirect(url_for('admin'))
+
+@app.route('/del_u/<int:id>')
+@login_required
+def del_u(id):
+    if current_user.role == 'admin':
+        u = User.query.get(id)
+        if u:
+            db.session.delete(u)
+            db.session.commit()
+    return redirect(url_for('admin'))
+
+@app.route('/serie/<int:id>')
+@login_required
+def serie_details(id):
+    s = Video.query.get_or_404(id)
+    return render_template('serie.html', serie=s)
+
+if __name__ == '__main__':
+    port = int(os.environ.get("PORT", 10000))
+    app.run(host='0.0.0.0', port=port)
