@@ -4,12 +4,12 @@ from flask_sqlalchemy import SQLAlchemy
 from flask_login import LoginManager, UserMixin, login_user, login_required, current_user
 
 app = Flask(__name__)
-app.config['SECRET_KEY'] = 'cle-secrete-streamdeck-2024'
+app.config['SECRET_KEY'] = 'cle-secrete-streamdeck-2026'
 
-# --- TA CONFIGURATION SUPABASE AVEC TON MDP ---
-# J'ai intégré "Salut les gens.82" directement ici
-app.config['SQLALCHEMY_DATABASE_URI'] = 'postgresql://postgres:Salut les gens.82@db.oirzftvubwpoyvvdwuhv.supabase.co:5432/postgres'
-# ----------------------------------------------
+# --- CONFIGURATION SUPABASE AVEC TON MDP ---
+# Lien mis à jour avec : Salutlesgens.82
+app.config['SQLALCHEMY_DATABASE_URI'] = 'postgresql://postgres:Salutlesgens.82@db.oirzftvubwpoyvvdwuhv.supabase.co:5432/postgres'
+# -------------------------------------------
 
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 
@@ -87,29 +87,4 @@ def admin():
                 ep = Episode(video_id=v.id, saison=request.form['saison'], titre_ep=request.form['titre_ep'], lien_ep=request.form['lien_ep'])
                 db.session.add(ep)
         elif 'gen_code' in request.form:
-            db.session.add(User(code=str(uuid.uuid4())[:8].upper()))
-        db.session.commit()
-        return redirect(url_for('admin'))
-    return render_template('admin.html', films=Video.query.all(), users=User.query.filter_by(role='user').all())
-
-@app.route('/serie/<int:id>')
-@login_required
-def serie_details(id):
-    return render_template('serie.html', serie=Video.query.get_or_404(id))
-
-@app.route('/del_v/<int:id>')
-@login_required
-def del_v(id):
-    if current_user.role == 'admin':
-        db.session.delete(Video.query.get(id)); db.session.commit()
-    return redirect(url_for('admin'))
-
-@app.route('/del_u/<int:id>')
-@login_required
-def del_u(id):
-    if current_user.role == 'admin':
-        db.session.delete(User.query.get(id)); db.session.commit()
-    return redirect(url_for('admin'))
-
-if __name__ == '__main__':
-    app.run(host='0.0.0.0', port=int(os.environ.get("PORT", 10000)))
+            db.session.add(User(code
