@@ -9,7 +9,6 @@ app.config['SECRET_KEY'] = 'cle-secrete-streamdeck-2026'
 # --- CONNEXION NEON ---
 app.config['SQLALCHEMY_DATABASE_URI'] = 'postgresql://neondb_owner:npg_hdJIb9yEqX0W@ep-plain-haze-agfexo8l-pooler.c-2.eu-central-1.aws.neon.tech/neondb?sslmode=require'
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
-app.config['SQLALCHEMY_ENGINE_OPTIONS'] = {"pool_pre_ping": True}
 
 db = SQLAlchemy(app)
 login_manager = LoginManager(app)
@@ -27,8 +26,8 @@ class Video(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     nom = db.Column(db.String(200))
     img = db.Column(db.String(500))
-    lien = db.Column(db.String(500)) # Pour les films
-    type = db.Column(db.String(20)) # 'film' ou 'serie'
+    lien = db.Column(db.String(500))
+    type = db.Column(db.String(20)) 
     genre = db.Column(db.String(50))
     episodes = db.relationship('Episode', backref='video', cascade="all, delete-orphan")
 
@@ -64,7 +63,7 @@ def index():
 @app.route('/login', methods=['GET', 'POST'])
 def login():
     if request.method == 'POST':
-        code_s = request.form.get('code').strip()
+        code_s = request.form.get('code', '').strip()
         user = User.query.filter_by(code=code_s).first()
         if user:
             login_user(user, remember=True)
@@ -75,51 +74,53 @@ def login():
 @login_required
 def admin():
     if current_user.role != 'admin': return redirect(url_for('index'))
-    
     if request.method == 'POST':
-        # Ajouter Film ou Série
         if 'add_content' in request.form:
-            v_type = request.form['type']
-            new_v = Video(
-                nom=request.form['nom'], 
-                img=request.form['img'], 
-                lien=request.form.get('lien_film'), 
-                type=v_type, 
-                genre=request.form['genre']
-            )
-            db.session.add(new_v)
-            db.session.flush() # Pour récupérer l'ID
-            
-            # Si c'est une série, on ajoute le premier épisode
+            v_type = request.form.get('type')
+            v = Video(nom=request.form.get('nom'), img=request.form.get('img'), lien=request.form.get('lien_film'), type=v_type, genre=request.form.get('genre'))
+            db.session.add(v)
+            db.session.flush()
             if v_type == 'serie' and request.form.get('saison'):
-                ep = Episode(
-                    video_id=new_v.id, 
-                    saison=request.form['saison'], 
-                    titre_ep=request.form['titre_ep'], 
-                    lien_ep=request.form['lien_ep']
-                )
+                ep = Episode(video_id=v.id, saison=request.form.get('saison'), titre_ep=request.form.get('titre_ep'), lien_ep=request.form.get('lien_ep'))
                 db.session.add(ep)
-        
-        # Ajouter un épisode à une série existante
         elif 'add_episode' in request.form:
-            ep = Episode(
-                video_id=request.form['video_id'],
-                saison=request.form['saison'],
-                titre_ep=request.form['titre_ep'],
-                lien_ep=request.form['lien_ep']
-            )
+            ep = Episode(video_id=request.form.get('video_id'), saison=request.form.get('saison'), titre_ep=request.form.get('titre_ep'), lien_ep=request.form.get('lien_ep'))
             db.session.add(ep)
-
-        # Générer un code
         elif 'gen_code' in request.form:
             db.session.add(User(code=str(uuid.uuid4())[:8].upper()))
-        
         db.session.commit()
         return redirect(url_for('admin'))
     
-    return render_template('admin.html', films=Video.query.all(), users=User.query.filter_by(role='user').all())
+    films_list = Video.query.all()
+    users_list = User.query.filter_by(role='user').all()
+    return render_template('admin.html', films=films_list, users=users_list)
 
 @app.route('/serie/<int:id>')
 @login_required
 def serie_details(id):
     s = Video.query.get_or_404(id)
+    return render_template('serie.html', serie=s)
+
+@app.route('/del_v/<int:id>')
+@login_required
+def del_v(id):
+    if current_user.role == 'admin':
+        v = Video.query.get(id)
+        if v:
+            db.session.delete(v)
+            db.session.commit()
+    return redirect(url_for('admin'))
+
+@app.route('/del_u/<int:id>')
+@login_required
+def del_u(id):
+    if current_user.role == 'admin':
+        u = User.query.get(id)
+        if u:
+            db.session.delete(u)
+            db.session.commit()
+    return redirect(url_for('admin'))
+
+if __name__ == '__main__':
+    port = int(os.environ.get("PORT", 10000))
+    app.run(host='0.0.0.0', port=port)
