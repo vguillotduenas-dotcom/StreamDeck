@@ -5,14 +5,12 @@
     <title>StreamDeck - Admin</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
     <style>
-        body { background: radial-gradient(circle at center, #300000 0%, #000000 100%); color: #fff; font-family: 'Segoe UI', sans-serif; min-height: 100vh; }
-        .admin-box { background: rgba(0, 0, 0, 0.8); border: 1px solid #ff0000; border-radius: 15px; padding: 20px; margin-bottom: 20px; box-shadow: 0 0 15px rgba(255, 0, 0, 0.2); }
+        body { background: radial-gradient(circle at center, #300000 0%, #000000 100%); color: #fff; min-height: 100vh; }
+        .admin-box { background: rgba(0, 0, 0, 0.8); border: 1px solid #ff0000; border-radius: 15px; padding: 20px; margin-bottom: 20px; }
         .form-control, .form-select { background: #111; border: 1px solid #444; color: white; margin-bottom: 10px; }
-        .form-control:focus { background: #222; color: white; border-color: #ff0000; box-shadow: 0 0 10px rgba(255, 0, 0, 0.5); }
         .btn-danger { background-color: #ff0000; border: none; font-weight: bold; }
         .btn-outline-danger { color: #ff0000; border-color: #ff0000; }
-        .btn-outline-danger:hover { background: #ff0000; color: #fff; }
-        h2, h4 { color: #ff0000; text-transform: uppercase; font-weight: bold; }
+        h2 { color: #ff0000; text-transform: uppercase; font-weight: bold; }
         table { color: white !important; }
     </style>
 </head>
@@ -28,27 +26,23 @@
         <div class="row">
             <div class="col-md-5">
                 <div class="admin-box">
-                    <h2>Ajouter un Film/Série</h2>
+                    <h2>Ajouter Film/Série</h2>
                     <form method="POST">
                         <input type="hidden" name="add_content" value="1">
                         <input type="text" name="nom" class="form-control" placeholder="Titre" required>
-                        <input type="text" name="img" class="form-control" placeholder="Lien image (URL)" required>
+                        <input type="text" name="img" class="form-control" placeholder="Lien image" required>
                         <select name="genre" class="form-select">
-                            <option>Action</option><option>Horreur</option><option>Comédie</option><option>Série</option><option>Anime</option>
+                            <option>Action</option><option>Horreur</option><option>Comédie</option><option>Série</option>
                         </select>
                         <select name="type" id="typeSelect" class="form-select">
                             <option value="film">Film</option>
                             <option value="serie">Série</option>
                         </select>
-                        <div id="sectionFilm">
-                            <input type="text" name="lien_film" class="form-control" placeholder="Lien de la vidéo">
-                        </div>
+                        <div id="sectionFilm"><input type="text" name="lien_film" class="form-control" placeholder="Lien vidéo"></div>
                         <div id="sectionSerie" style="display:none;">
-                            <hr class="border-danger">
-                            <h4 class="fs-6">Premier épisode</h4>
                             <input type="text" name="saison" class="form-control" placeholder="Saison 1">
                             <input type="text" name="titre_ep" class="form-control" placeholder="Titre épisode">
-                            <input type="text" name="lien_ep" class="form-control" placeholder="Lien vidéo épisode">
+                            <input type="text" name="lien_ep" class="form-control" placeholder="Lien épisode">
                         </div>
                         <button type="submit" class="btn btn-danger w-100 mt-2">ENREGISTRER</button>
                     </form>
@@ -56,10 +50,7 @@
 
                 <div class="admin-box">
                     <h2>Codes d'accès</h2>
-                    <form method="POST">
-                        <input type="hidden" name="gen_code" value="1">
-                        <button type="submit" class="btn btn-danger w-100 mb-3">GÉNÉRER UN CODE</button>
-                    </form>
+                    <form method="POST"><input type="hidden" name="gen_code" value="1"><button type="submit" class="btn btn-danger w-100 mb-3">GÉNÉRER UN CODE</button></form>
                     <table class="table table-dark table-sm">
                         <thead><tr><th>Code</th><th>Utilisateur</th><th></th></tr></thead>
                         <tbody>
@@ -67,4 +58,28 @@
                             <tr>
                                 <td class="text-danger">{{ u.code }}</td>
                                 <td>{{ u.nom or 'Libre' }}</td>
-                                <td>
+                                <td><a href="/del_u/{{ u.id }}" class="text-white text-decoration-none">✖</a></td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <div class="col-md-7">
+                <div class="admin-box">
+                    <h2>Liste des contenus</h2>
+                    {% for f in films %}
+                    <div class="border-bottom border-secondary mb-3 pb-2 d-flex justify-content-between align-items-center">
+                        <div><span class="fw-bold">{{ f.nom }}</span> <span class="badge bg-danger ms-2">{{ f.type }}</span></div>
+                        <a href="/del_v/{{ f.id }}" class="btn btn-sm btn-outline-danger">Supprimer</a>
+                    </div>
+                    {% if f.type == 'serie' %}
+                    <div class="ms-3 mb-3 p-2 bg-dark rounded border border-secondary">
+                        <form method="POST" class="row g-2">
+                            <input type="hidden" name="add_episode" value="1">
+                            <input type="hidden" name="video_id" value="{{ f.id }}">
+                            <div class="col-4"><input type="text" name="saison" class="form-control form-control-sm" placeholder="Sais."></div>
+                            <div class="col-8"><input type="text" name="titre_ep" class="form-control form-control-sm" placeholder="Ep."></div>
+                            <div class="col-12"><input type="text" name="lien_ep" class="form-control form-control-sm" placeholder="Lien"></div>
+                            <button type="submit" class="btn btn-sm btn-
